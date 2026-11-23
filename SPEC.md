@@ -48,7 +48,7 @@ Bellaso does three things:
 2. It sends each payment to a **one-time account**. The one-time account spends only with a hybrid signature: **secp256k1 + ML-DSA-87**.
 3. It makes and uses all secret keys **in the browser or the CLI of the user**. No server, TEE or operator holds a key. The Bellaso gateway relays and indexes public chain data only.
 
-**One-line description (UI and pitch):** "Private payment links that stay private after Q-Day."
+**One-line description (UI and pitch):** "Quantum-safe stealth payments." The supporting line names the two payment methods (section 2.2): "No chain observer can link a payment to you, today or after Q-Day. Get paid in two ways: a payment link or a stealth address."
 
 **Pitch metaphor:** a *pentimento* is an old layer of a painting that becomes visible again after many years. Each ECDH stealth payment is a pentimento. It waits to become visible.
 

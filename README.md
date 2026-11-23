@@ -1,8 +1,13 @@
 # Bellaso
 
-![Bellaso: private payment links that stay private after Q-Day](apps/web/public/brand/cover-1600x900.png)
+![Bellaso: quantum-safe stealth payments](apps/web/public/brand/cover-1600x900.png)
 
-Private payment links that stay private after Q-Day.
+Quantum-safe stealth payments. No chain observer can link a payment to you, today or after Q-Day.
+
+Get paid in two ways:
+
+- **Method 1, payment link.** One link for every payer. The payer pays with QoreX, and the browser of the payer seals a new address to your ML-KEM-1024 key.
+- **Method 2, stealth address.** One address for each client. The client pays from any wallet with a normal transfer. The address comes from your post-quantum root secret, and nothing else goes on chain.
 
 Bellaso hides the recipient of a payment with ML-KEM-1024 and protects the funds with a hybrid secp256k1 + ML-DSA-87 signature. All secret keys stay in the browser or the CLI of the user. It runs on the QoreChain testnet `qorechain-diana`. Entry for the QoreChain "Build Before Q-Day" fest, category Encrypted Apps.
 
