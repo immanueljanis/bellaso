@@ -94,6 +94,9 @@ Write the result and the evidence for each gate. TECH_SPEC section 14 defines th
 | Browser inbox | 3 announcements opened in 0.16 s, on the main thread. |
 | Test QOR left | The CLI payer has about 2.5 QOR, and the sponsor wallet about 0.79 QOR. Backlog C11 needs more. |
 
+- Gate G9, QoreX mobile **Send** (AC11 part 1). The team made Bellaso `qor167655y2vhdev92ctdj9q79n9fjz2u8umd9s63x` in the QoreX dApp browser (sponsor tx 34F0E5E7…, height 10,606,780) and a stealth address `qor1u0998pfd48pkvlhdeh7pyq2qywr4z2d560pwrm`. QoreX Send of 5.15 QOR from `qor1esra9…`: tx `B88EA65D19A73066D7A7C5190E105D34E3F91A077CF01050920AEFA52FF5387F` (hybrid). The inbox found it with its label. Spend: tx 1 `CFA22E201F1A588E92209ACFA224018C0433E23FF1682727F23067EEC89ED624` (gas 278,458), tx 2 `4238D4FE0595C94585046E9D72FDF6AA1AFEDC8D2C36CF43CAC42E17CBFFFD8B` (gas 162,886, `pqc_hybrid_verify`).
+- The spend above went to the own account A, not to another wallet. `link-attempt` before the spend: PASS (H1 to H5 = 0). After the spend: FAIL by H1 and H3 (the address of A is in tx 2). This is risk R5 on testnet. Since then the spend page needs an extra tick before a spend to an own address. The AC11 evidence moves to a new stealth address of `qor130jx…`: `qor1jx9827nk2llc5q7f5c4y7l9cxkpj7335g429ry`.
+
 ## 4. Fest Discord post (draft)
 
 The FAQ says: "Post a short summary in the fest Discord: what it does, the category you are aiming for and the QoreChain features it uses. We will tell you how it fits and what the jury will look for."

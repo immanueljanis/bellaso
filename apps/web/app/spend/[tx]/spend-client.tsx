@@ -43,6 +43,7 @@ export function SpendClient({ txHash }: { txHash: string }) {
   const [held, setHeld] = useState<Coin[] | null>(null);
   const [registered, setRegistered] = useState<boolean | null>(null);
   const [destination, setDestination] = useState("");
+  const [linkAccepted, setLinkAccepted] = useState(false);
   const [phases, setPhases] = useState<Phase[]>([]);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<{ hash: string; hybrid: boolean } | null>(null);
@@ -84,7 +85,7 @@ export function SpendClient({ txHash }: { txHash: string }) {
     );
 
   async function spend() {
-    if (!account || !payment || !validTarget) return;
+    if (!account || !payment || !validTarget || (links && !linkAccepted)) return;
     setBusy(true);
     setError(null);
     setPhases([
@@ -167,11 +168,22 @@ export function SpendClient({ txHash }: { txHash: string }) {
                     autoComplete="off"
                     spellCheck={false}
                     value={destination}
-                    onChange={(event) => setDestination(event.target.value)}
+                    onChange={(event) => {
+                      setDestination(event.target.value);
+                      setLinkAccepted(false);
+                    }}
                     disabled={busy || result !== null}
                   />
                   <div className={styles.quick}>
-                    <button type="button" className={ui.textLink} onClick={() => setDestination(vault.address)} disabled={busy || result !== null}>
+                    <button
+                      type="button"
+                      className={ui.textLink}
+                      onClick={() => {
+                        setDestination(vault.address);
+                        setLinkAccepted(false);
+                      }}
+                      disabled={busy || result !== null}
+                    >
                       My Bellaso account
                     </button>
                   </div>
@@ -180,6 +192,10 @@ export function SpendClient({ txHash }: { txHash: string }) {
                     <div className={styles.warning} role="alert">
                       <p className={styles.warningTitle}>This links your payments together.</p>
                       <p>Anyone could then see that this payment belongs to your Bellaso account. Send to an exchange or a new wallet instead.</p>
+                      <label className={ui.check} style={{ marginTop: 10 }}>
+                        <input type="checkbox" checked={linkAccepted} onChange={(event) => setLinkAccepted(event.target.checked)} />
+                        <span>Send to my own address anyway</span>
+                      </label>
                     </div>
                   )}
 
@@ -195,7 +211,7 @@ export function SpendClient({ txHash }: { txHash: string }) {
                   </dl>
 
                   {!result && (
-                    <button type="button" className={ui.primary} onClick={spend} disabled={!account || !validTarget || busy}>
+                    <button type="button" className={ui.primary} onClick={spend} disabled={!account || !validTarget || busy || (links && !linkAccepted)}>
                       {busy ? "Spending…" : "Spend with two signatures"}
                     </button>
                   )}
