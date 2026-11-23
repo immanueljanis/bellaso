@@ -9,6 +9,7 @@ export const REST_READ_PREFIXES = [
   "/qorechain/pqc/v1/",
   "/cosmwasm/wasm/v1/contract/",
   "/cosmos/tx/v1beta1/txs/",
+  "/cosmos/upgrade/v1beta1/applied_plan/",
 ] as const;
 
 /**

@@ -55,6 +55,7 @@ test("isAllowedRestRead refuses dot segments and odd characters", () => {
   expect(isAllowedRestRead("/cosmos/auth/v1beta1/accounts/qor1abc")).toBe(true);
   expect(isAllowedRestRead("/qorechain/pqc/v1/../x")).toBe(false);
   expect(isAllowedRestRead("/qorechain/pqc/v1/a?b")).toBe(false);
+  expect(isAllowedRestRead("/cosmos/upgrade/v1beta1/applied_plan/v3.2.3")).toBe(true);
   expect(isAllowedRestRead("/cosmos/staking/v1beta1/validators")).toBe(false);
 });
 
