@@ -35,4 +35,5 @@
 ## Git
 
 - Every commit is made during the fest (after 4 Nov 2026). Do not import code from older projects.
+- Commit messages follow Conventional Commits: `type(scope): description`, for example `fix(gateway): refuse encoded path traversal`. Types: feat, fix, docs, test, refactor, chore, perf, ci, build. The scope is the package or area: web, gateway, core, chain, scripts, docs, deps.
 - No AI attribution in commits, PR titles or PR bodies.
