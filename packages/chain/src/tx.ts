@@ -56,21 +56,27 @@ export interface SearchedTx {
   tx: Uint8Array;
 }
 
-/**
- * One page of CometBFT `tx_search` for every transaction that touched `contract`, from
- * `minHeight` on, in height order. The scan reads whole pages, never one derived address.
- */
-export async function searchContractTxs(
+export interface TxEvent {
+  type: string;
+  attributes: { key: string; value: string }[];
+}
+
+export interface SearchedTxWithEvents extends SearchedTx {
+  /** The events of the transaction result, as CometBFT returns them. */
+  events: TxEvent[];
+}
+
+/** One page of CometBFT `tx_search` for `query` (without the outer quotes), in height order. */
+export async function searchTxs(
   rpcUrl: string,
-  contract: string,
-  { minHeight = 0, page = 1, perPage = 100 }: { minHeight?: number; page?: number; perPage?: number } = {},
-): Promise<{ total: number; txs: SearchedTx[] }> {
-  const filter = minHeight > 0 ? `wasm._contract_address='${contract}' AND tx.height>=${minHeight}` : `wasm._contract_address='${contract}'`;
-  const url = `${rpcUrl}/tx_search?query=${encodeURIComponent(`"${filter}"`)}&page=${page}&per_page=${perPage}&order_by=%22asc%22`;
+  query: string,
+  { page = 1, perPage = 100 }: { page?: number; perPage?: number } = {},
+): Promise<{ total: number; txs: SearchedTxWithEvents[] }> {
+  const url = `${rpcUrl}/tx_search?query=${encodeURIComponent(`"${query}"`)}&page=${page}&per_page=${perPage}&order_by=%22asc%22`;
   const response = await fetch(url);
   if (!response.ok) throw new Error(`tx_search answered ${response.status}`);
   const { result } = (await response.json()) as {
-    result: { total_count: string; txs: { hash: string; height: string; tx: string }[] };
+    result: { total_count: string; txs: { hash: string; height: string; tx: string; tx_result?: { events?: TxEvent[] } }[] };
   };
   return {
     total: Number(result.total_count),
@@ -78,6 +84,20 @@ export async function searchContractTxs(
       hash: item.hash,
       height: Number(item.height),
       tx: Uint8Array.from(atob(item.tx), (char) => char.charCodeAt(0)),
+      events: item.tx_result?.events ?? [],
     })),
   };
+}
+
+/**
+ * One page of CometBFT `tx_search` for every transaction that touched `contract`, from
+ * `minHeight` on, in height order. The scan reads whole pages, never one derived address.
+ */
+export function searchContractTxs(
+  rpcUrl: string,
+  contract: string,
+  { minHeight = 0, page = 1, perPage = 100 }: { minHeight?: number; page?: number; perPage?: number } = {},
+): Promise<{ total: number; txs: SearchedTxWithEvents[] }> {
+  const filter = minHeight > 0 ? `wasm._contract_address='${contract}' AND tx.height>=${minHeight}` : `wasm._contract_address='${contract}'`;
+  return searchTxs(rpcUrl, filter, { page, perPage });
 }
