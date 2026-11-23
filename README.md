@@ -61,7 +61,7 @@ flowchart LR
 | What | Where |
 |---|---|
 | Web app | https://bellaso.vercel.app |
-| Pay page of the demo recipient | https://bellaso.vercel.app/pay/qor130jxjehyvf2ndr6lyutl9e09plv7k0epyhnmyz |
+| Pay page of the demo recipient | https://bellaso.vercel.app/pay/qor130jxjehyvf2ndr6lyutl9e09plv7k0epyhnmyz#k=b28fe7b8c9575ffb8d137581d33c2b2b |
 | Gateway health | https://gateway-production-4e82893b.up.railway.app/v1/health |
 
 To pay from a phone, open the pay page in the QoreX app's dApp browser with Settings › Use testnet (developers) on. The QoreX browser extension has no testnet switch.

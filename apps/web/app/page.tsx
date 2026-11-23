@@ -8,6 +8,8 @@ import styles from "./landing.module.css";
 const REPO = "https://github.com/immanueljanis/bellaso";
 /** The testnet demo recipient. Its only funder is the Bellaso sponsor, so its payments stay unlinked (AC6). */
 const DEMO_RECIPIENT = "qor130jxjehyvf2ndr6lyutl9e09plv7k0epyhnmyz";
+/** The KEM key fingerprint of the demo recipient, checked against the chain on 23 Nov 2026. */
+const DEMO_FINGERPRINT = "b28fe7b8c9575ffb8d137581d33c2b2b";
 
 interface Point {
   left: string;
@@ -114,7 +116,7 @@ export default function Home() {
               <Link href="/create" className={styles.cta}>
                 Create my Bellaso <span className={styles.arrow}>→</span>
               </Link>
-              <Link href={`/pay/${DEMO_RECIPIENT}`} className={styles.textLink}>
+              <Link href={`/pay/${DEMO_RECIPIENT}#k=${DEMO_FINGERPRINT}`} className={styles.textLink}>
                 See a payment link <span className={styles.arrow}>→</span>
               </Link>
             </div>
