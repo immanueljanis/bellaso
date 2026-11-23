@@ -21,7 +21,7 @@ This file states how the team used AI tools to build Bellaso for the QoreChain "
 - Each cryptographic derivation has a fixed test vector in `packages/core/test`. A change that breaks a vector fails `bun run check`.
 - Each claim in the README has a transaction hash or a command output on testnet `qorechain-diana`. `docs/PLAN.md` section 3 lists them.
 - `scripts/link-attempt.ts` attacks the privacy claim with public data only.
-- The team reviewed each change before it went to `main`.
+- Claude Code reviewed the diff of each of its subagents before the merge to `main`. The team tested the deployed app on testnet.
 
 ## Secrets
 
