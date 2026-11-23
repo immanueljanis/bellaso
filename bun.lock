@@ -19,6 +19,7 @@
         "@bellaso/core": "workspace:*",
         "@fastify/cors": "^11.4.3",
         "@fastify/rate-limit": "^11.3.0",
+        "@qorechain/sdk": "0.14.0",
         "fastify": "^5.12.8",
       },
       "devDependencies": {
