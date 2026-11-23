@@ -47,24 +47,26 @@
 .tick {
   flex: 0 1 6px;
   min-width: 2px;
-  height: 14px;
+  height: 44px;
   border-radius: 1px;
   background: oklch(0.94 0.008 95 / 0.12);
-  transition: height 420ms var(--ease-state), background-color 420ms var(--ease-state);
+  transform: scaleY(0.32);
+  transform-origin: bottom;
+  transition: transform 420ms var(--ease-state), background-color 420ms var(--ease-state);
 }
 
 .tickOther {
-  height: 18px;
+  transform: scaleY(0.41);
   background: oklch(0.94 0.008 95 / 0.35);
 }
 
 .tickMine {
-  height: 44px;
+  transform: none;
   background: var(--blue-chalk);
 }
 
 .tickCursor {
-  height: 30px;
+  transform: scaleY(0.68);
   background: var(--orange-chalk);
 }
 
@@ -87,6 +89,7 @@
   width: 10px;
   height: 10px;
   border-radius: 1px;
+  transform: none;
 }
 
 .feed {
