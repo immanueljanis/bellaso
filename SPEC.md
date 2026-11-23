@@ -157,27 +157,29 @@ Each term has one meaning in all Bellaso documents.
 
 ### 7.1 Recipient setup (one time)
 
-1. Open Bellaso and select **Create my Bellaso**. The app makes a Bellaso recovery phrase in the browser. QoreX does not hold this phrase, because QoreX does not export private keys and does not register KEM keys for a website.
-2. The Bellaso gateway sends 0.1 QOR to account A from the sponsor wallet. The QOR pays the setup fees. If the sponsor is not available, the recipient sends QOR from QoreX or from the faucet.
+1. Open Bellaso and select **Create my Bellaso**. The app makes a Bellaso recovery phrase in the browser. QoreX does not hold this phrase, because QoreX does not export private keys and does not register KEM keys for a website. The browser keeps the phrase in a vault, encrypted with a passphrase (`docs/TECH_SPEC.md` section 10). The recipient can also restore an existing phrase.
+2. The Bellaso gateway sends 0.12 QOR to account A from the sponsor wallet. The QOR pays the two setup fees. In gates G1 and G2 these fees were 58,763 and 38,120 uqor, about 0.097 QOR in total (MEASURED). If the sponsor refuses or is not available, the app shows the reason. Then the recipient sends QOR from QoreX or from the faucet, and the app waits for it.
 3. The app registers the ML-DSA-87 key of account A with a proof of possession. This occurs one time.
 4. The app registers the KEM key of account A in the QoreSeal key registry. This transaction has a hybrid signature.
 5. The app shows the payment link and a copy button. If the Handles kit works on testnet, the link uses an `@handle`.
+
+Each step first reads the chain and skips the work that is already done. Thus an unlock of an existing vault finishes an open setup, or shows the link.
 
 ### 7.2 Payer: pay
 
 1. Open the link. The app reads the secp256k1 public key and the KEM key of account A from the chain, through the Bellaso gateway.
 2. Type the amount of fUSD. The app calculates the one-time address in the browser.
 3. Connect QoreX. Sign **one native transaction**. The transaction sends the fUSD and a QOR gas allowance to the one-time address. It also writes the announcement as 7 short records into the Bellaso announcement contract. `docs/TECH_SPEC.md` sections 5 and 7.2 give the details. The fee was 0.457 QOR through QoreX in gate G4 (MEASURED), because QoreX sets the gas limit itself. The payer also sends the 0.15 QOR allowance, so a payment costs the payer about 0.61 QOR on top of the amount.
-4. The receipt page shows: "Paid to a fresh address. Nobody can link it to this link, now or after Q-Day." It also shows a link to the explorer.
+4. The receipt page shows: "Paid to a fresh address. Nobody can link it to this link, now or after Q-Day." It also shows the one-time address. No testnet explorer is confirmed (`docs/TECH_SPEC.md` section 13).
 
 ### 7.3 Recipient: inbox
 
-1. The app reads all new announcements since the last scan from the Bellaso gateway. The gateway does not know which announcements belong to the recipient.
+1. On each scan, the app reads all announcements and all transfers from the Bellaso gateway. The request contains no address. Thus the gateway does not know which announcements or transfers belong to the recipient.
 2. For each announcement, the app does these steps:
    1. Decapsulate the ciphertext with the KEM secret key.
    2. Compare the view tag.
    3. If the view tag is correct, calculate the one-time address. Compare it with the destination of the transfer in the same transaction.
-3. The inbox shows the amount, the time and the status of each payment. The amount comes from the payment transaction. The app does not query the balance of a one-time account before a spend (`docs/THREAT_MODEL.md` R7).
+3. The inbox shows the amount, the block height, the method and the status of each payment. The amount comes from the payment transaction. The app does not query the balance of a one-time account before a spend (`docs/THREAT_MODEL.md` R7).
 
 ### 7.4 Recipient: spend
 
@@ -205,7 +207,7 @@ Inbox and spend:
 
 1. The inbox finds the payment from the transfer feed of the gateway. It does not query the address directly (`docs/THREAT_MODEL.md` R7).
 2. The payment shows the label and the method "Stealth address".
-3. The spend flow is the same as section 7.4. If the address has no QOR, the app first asks the Bellaso sponsor for gas.
+3. The spend flow is the same as section 7.4. If the address has too little QOR for the two spend fees, the app first asks the Bellaso sponsor for 0.12 QOR of gas.
 
 ### 7.6 Stretch features (only after all criteria in section 11 pass)
 
@@ -312,7 +314,7 @@ Prove each criterion on testnet or with command output. A local unit test alone 
 | 0:00 to 0:20 | The problem: the L2BEAT rating "Future adversary: Exposed" for ECDH stealth payments. The quote: "the chain itself is the archive." |
 | 0:20 to 0:45 | Rina makes her Bellaso and gets the link. |
 | 0:45 to 1:10 | Method 1: a client pays 150 fUSD through the link with QoreX. |
-| 1:10 to 1:25 | The explorer shows the funds in a new address with no link to Rina. |
+| 1:10 to 1:25 | The raw transaction shows the funds in a new address with no link to Rina. No testnet explorer is confirmed. |
 | 1:25 to 1:45 | Method 2: Rina makes a stealth address for "Studio Kyoto". The studio pays from the normal QoreX Send screen. |
 | 1:45 to 2:10 | The inbox of Rina finds both payments. |
 | 2:10 to 2:35 | Rina spends the funds. The video shows the `pqc_hybrid_verify` event. |
@@ -340,7 +342,7 @@ Prove each criterion on testnet or with command output. A local unit test alone 
 4. Secret keys stay only in the browser or the CLI of the user.
 5. Payer privacy and amount privacy are not in scope.
 6. The repository is a Bun workspace: `apps/web` (Next.js on Vercel), `apps/gateway` (Bun + Fastify), `packages/core`, `packages/chain` and `scripts/`.
-7. Bellaso has a gateway. The public QoreChain endpoints send no CORS headers (MEASURED on 23 Nov 2026). The gateway also indexes the announcements and sponsors the setup fees. It never receives a secret. The team selected this design for a long-term product.
+7. Bellaso has a gateway. The public QoreChain endpoints send no CORS headers (MEASURED on 23 Nov 2026). The gateway also indexes the announcements and the transfers, and sponsors the setup fees and the gas of stealth addresses. It keeps its state in memory and rebuilds its indexes from the chain. It never receives a secret. The team selected this design for a long-term product.
 8. Bellaso has two payment methods: the payment link (method 1) and the stealth address (method 2). Method 2 lets a payer use any wallet. The team selected both on 23 Nov 2026.
 
 ## 15. Open items (closed on day 1 with a prototype)
@@ -352,13 +354,17 @@ Research on 23 Nov 2026 already closed some questions:
 - The announcement goes into an own instance of code 865 (`qday-receipts`), as 7 base32768 records. QoreX decodes `MsgExecuteContract` (CONFIRMED). QoreX refuses `MsgCrossVMCall` (CONFIRMED).
 - The SDK can register the KEM key without QoreX (CONFIRMED in code). QoreX refuses it (CONFIRMED).
 
+Closed on 23 Nov 2026 (`docs/PLAN.md` section 3 has the evidence):
+
+1. G1 (pass): the ML-DSA-87 key of account A uses the QoreX derivation `derivePqcCanonical`.
+2. G2 (pass): KEM key registration on testnet works end to end.
+3. G3 (pass): one transaction accepts `MsgSend` + 7 records. No contract gas limit stopped it.
+4. G4 (pass): QoreX mobile signs that transaction. The fee was 0.457 QOR.
+5. G5 (pass): the first spend costs about 0.093 QOR. Thus the default gas allowance of 0.15 QOR is enough.
+6. G6 (pass): the CLI scan finds the payments.
+7. G8 (pass): the SDK signs and broadcasts from the browser through the gateway.
+
 Open:
 
-1. G1: whether the ML-DSA-87 key of account A can use the QoreX derivation, so that the phrase works in QoreX mobile.
-2. G2: KEM key registration on testnet, end to end.
-3. G3: whether one transaction accepts `MsgSend` + 7 records (a possible 1.5M gas limit for contract execution).
-4. G4: whether QoreX signs that transaction in practice, and the real fee.
-5. G5: the real fee of the first spend, and thus the gas allowance (default 0.15 QOR).
-6. G7: whether the Handles kit works on testnet (optional).
-7. G8 (day 4): whether the SDK signs and broadcasts from the browser through the gateway.
-8. G9 (day 6): which normal wallets can pay a stealth address. QoreX Send first. An EVM wallet (MetaMask, ERC-20 fUSD) only if the EVM transfer lands in the same native account and the recipient can spend it.
+1. G7: whether the Handles kit works on testnet (optional).
+2. G9 (partial): which normal wallets can pay a stealth address. A plain `MsgSend` from the CLI payer works. QoreX Send is not tested yet. An EVM wallet (MetaMask, ERC-20 fUSD) only if the EVM transfer lands in the same native account and the recipient can spend it.
