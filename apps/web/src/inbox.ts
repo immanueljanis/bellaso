@@ -65,7 +65,7 @@ export function openItem(keys: RecipientKeys, item: GatewayAnnouncement): InboxP
   }
   return item.transfers.flatMap((transfer) =>
     openAnnouncement(keys, announcement, transfer.to)
-      ? [{ method: "link" as const, txHash: item.txHash, height: item.height, address: transfer.to, amount: transfer.amount, announcement: item.announcement }]
+      ? [{ method: "link" as const, txHash: item.txHash, height: item.height, from: transfer.from, address: transfer.to, amount: transfer.amount, announcement: item.announcement }]
       : [],
   );
 }
@@ -76,7 +76,7 @@ export function matchStealth(stealth: StealthEntry[], transfers: GatewayTransfer
   return transfers.flatMap((transfer) => {
     const entry = byAddress.get(transfer.to);
     return entry
-      ? [{ method: "stealth" as const, txHash: transfer.txHash, height: transfer.height, address: transfer.to, amount: transfer.amount, index: entry.index }]
+      ? [{ method: "stealth" as const, txHash: transfer.txHash, height: transfer.height, from: transfer.from, address: transfer.to, amount: transfer.amount, index: entry.index }]
       : [];
   });
 }

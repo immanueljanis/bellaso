@@ -25,6 +25,13 @@ export function formatCoin({ denom, amount }: Coin): string {
   return `${(units / scale).toLocaleString("en-US")}${fraction ? `.${fraction}` : ""} ${token.symbol}`;
 }
 
+/** The sum of each denom in a list of coins, in the order of first use. */
+export function sumCoins(coins: Coin[]): Coin[] {
+  const sums = new Map<string, bigint>();
+  for (const coin of coins) sums.set(coin.denom, (sums.get(coin.denom) ?? 0n) + BigInt(coin.amount));
+  return [...sums].map(([denom, amount]) => ({ denom, amount: amount.toString() }));
+}
+
 /** The main coin of a payment: the first coin that is not QOR, else QOR. The QOR next to a token is the gas allowance. */
 export function mainCoin(coins: Coin[]): { main: Coin | undefined; gas: Coin | undefined } {
   const token = coins.find((coin) => coin.denom !== TESTNET.denoms.QOR.denom);

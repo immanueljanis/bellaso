@@ -13,10 +13,14 @@ export interface StealthEntry {
   askGas: boolean;
 }
 
-/** One payment the inbox found. The spend page opens it again from `announcement` or `index`. */
+/**
+ * One payment the inbox found. The spend page opens it again from `announcement` or `index`.
+ * `from` is the public payer address. A payment that an older scan saved has none until the next scan.
+ */
 export type InboxPayment = {
   txHash: string;
   height: number;
+  from?: string;
   address: string;
   amount: Coin[];
   spentTx?: string;

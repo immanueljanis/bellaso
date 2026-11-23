@@ -22,7 +22,7 @@ test("openItem finds a payment to this recipient and ignores one to another reci
 
   const found = openItem(me.keys, item(mine, "AAA"));
   expect(found).toHaveLength(1);
-  expect(found[0]).toMatchObject({ method: "link", txHash: "AAA", address: mine.address, amount: coin });
+  expect(found[0]).toMatchObject({ method: "link", txHash: "AAA", from: "qor1payer", address: mine.address, amount: coin });
   expect(openItem(me.keys, item(theirs, "BBB"))).toEqual([]);
   expect(openItem(me.keys, { ...item(mine, "CCC"), announcement: "AAAA" })).toEqual([]);
   expect(addressOf(me.keys.publicKey)).not.toBe(mine.address);
@@ -35,7 +35,7 @@ test("matchStealth keeps only transfers to vault addresses, and mergePayments ke
     { txHash: "T2", height: 6, msgIndex: 0, from: "qor1a", to: "qor1other", amount: [{ denom: "uqor", amount: "1" }] },
   ];
   const found = matchStealth(stealth, transfers);
-  expect(found).toEqual([{ method: "stealth", txHash: "T1", height: 5, address: "qor1stealth0", amount: transfers[0]!.amount, index: 0 }]);
+  expect(found).toEqual([{ method: "stealth", txHash: "T1", height: 5, from: "qor1a", address: "qor1stealth0", amount: transfers[0]!.amount, index: 0 }]);
   const merged = mergePayments([{ ...found[0]!, spentTx: "S1" }], found);
   expect(merged[0]!.spentTx).toBe("S1");
 });

@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { TESTNET } from "@bellaso/chain";
-import { formatCoin, mainCoin, toBaseUnits } from "../src/amount";
+import { formatCoin, mainCoin, sumCoins, toBaseUnits } from "../src/amount";
 
 test("toBaseUnits converts decimal text and refuses bad input", () => {
   expect(toBaseUnits("150", 6)).toBe(150_000_000n);
@@ -27,4 +27,17 @@ test("mainCoin treats QOR next to a token as the gas allowance", () => {
   const qor = { denom: "uqor", amount: "150000" };
   expect(mainCoin([qor, fusd])).toEqual({ main: fusd, gas: qor });
   expect(mainCoin([qor])).toEqual({ main: qor, gas: undefined });
+});
+
+test("sumCoins adds the coins of each denom", () => {
+  const coins = [
+    { denom: "ufusd", amount: "150" },
+    { denom: "uqor", amount: "5" },
+    { denom: "ufusd", amount: "80" },
+  ];
+  expect(sumCoins(coins)).toEqual([
+    { denom: "ufusd", amount: "230" },
+    { denom: "uqor", amount: "5" },
+  ]);
+  expect(sumCoins([])).toEqual([]);
 });

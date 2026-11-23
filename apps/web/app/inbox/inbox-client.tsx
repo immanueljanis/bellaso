@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { formatCoin, mainCoin } from "@/src/amount";
+import { formatCoin, mainCoin, sumCoins } from "@/src/amount";
 import { deriveRecipient } from "@/src/chain-client";
 import { txUrl } from "@/src/gateway";
 import { type GatewayAnnouncement, fetchAnnouncements, fetchTransfers, matchStealth, mergePayments, openItem } from "@/src/inbox";
@@ -66,7 +66,10 @@ export function InboxClient() {
 
   const byLink = payments.filter((payment) => payment.method === "link").length;
   const byStealth = payments.length - byLink;
-  const unspent = payments.filter((payment) => !payment.spentTx).length;
+  const unspent = payments.filter((payment) => !payment.spentTx);
+  const unspentTotal = sumCoins(unspent.flatMap((payment) => mainCoin(payment.amount).main ?? []))
+    .map(formatCoin)
+    .join(" + ");
   const headline = !scan || scan.running
     ? "Opening announcements with your key"
     : payments.length === 0
@@ -175,7 +178,8 @@ export function InboxClient() {
                   Payments
                 </h2>
                 <span className={styles.unspent}>
-                  Unspent <strong>{unspent}</strong>
+                  Unspent <strong>{unspent.length === 0 ? "nothing" : unspentTotal}</strong>
+                  {unspent.length > 1 && ` in ${unspent.length} payments`}
                 </span>
               </div>
 
@@ -198,7 +202,9 @@ export function InboxClient() {
                         </div>
                         <div className={styles.whereCell}>
                           <span>{labelOf(payment)}</span>
-                          <span className={styles.block}>block {payment.height.toLocaleString("en-US")}</span>
+                          <span className={styles.block}>
+                            {payment.from ? `from ${short(payment.from)} · ` : ""}block {payment.height.toLocaleString("en-US")}
+                          </span>
                         </div>
                         <span className={styles.address}>{short(payment.address)}</span>
                         <span className={`${styles.status} ${payment.spentTx ? styles.spent : ""}`}>{payment.spentTx ? "Spent" : "Unspent"}</span>

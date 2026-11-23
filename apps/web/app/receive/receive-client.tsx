@@ -1,9 +1,8 @@
 "use client";
 
-import type { Coin } from "@bellaso/chain";
 import { stealthAddress } from "@bellaso/core";
 import { useEffect, useRef, useState } from "react";
-import { PAYMENT_TOKENS, formatCoin, toBaseUnits } from "@/src/amount";
+import { PAYMENT_TOKENS, formatCoin, sumCoins, toBaseUnits } from "@/src/amount";
 import { deriveRecipient } from "@/src/chain-client";
 import { paymentLink, withRequest } from "@/src/link";
 import { type GatewayTransfer, fetchTransfers } from "@/src/inbox";
@@ -30,13 +29,6 @@ const payerNote = (entry: StealthEntry) =>
     "It is a normal transfer from any wallet on QoreChain testnet (qorechain-diana).",
     ...(entry.askGas ? ["Please also send 0.15 QOR to the same address, for the network fee."] : []),
   ].join("\n");
-
-/** The sum of each denom in a list of transfers. */
-function totals(transfers: GatewayTransfer[]): Coin[] {
-  const sums = new Map<string, bigint>();
-  for (const coin of transfers.flatMap((transfer) => transfer.amount)) sums.set(coin.denom, (sums.get(coin.denom) ?? 0n) + BigInt(coin.amount));
-  return [...sums].map(([denom, amount]) => ({ denom, amount: amount.toString() }));
-}
 
 /** Get paid (SPEC sections 7.1 and 7.5): the payment link, and stealth addresses for one client each. */
 export function ReceiveClient() {
@@ -112,7 +104,7 @@ export function ReceiveClient() {
 
   const statusOf = (entry: StealthEntry) => {
     const paid = transfers?.filter((transfer) => transfer.to === entry.address) ?? [];
-    return { paid, received: paid.length > 0 ? totals(paid).map(formatCoin).join(" + ") : transfers ? "Nothing yet" : "…" };
+    return { paid, received: paid.length > 0 ? sumCoins(paid.flatMap((transfer) => transfer.amount)).map(formatCoin).join(" + ") : transfers ? "Nothing yet" : "…" };
   };
 
   return (
