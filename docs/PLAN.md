@@ -37,12 +37,12 @@ Write the result and the evidence for each gate. TECH_SPEC section 14 defines th
 
 | Gate | Status | Evidence (transaction hash or output) | Selected fallback |
 |---|---|---|---|
-| G1 Account A | pending | | |
-| G2 KEM key | pending | | |
-| G3 Records | pending | | |
-| G4 QoreX payment | pending | | |
-| G5 Spend | pending | | |
-| G6 Scan | pending | | |
+| G1 Account A | **pass** (23 Nov) | `MsgRegisterPQCKeyV2` tx `9794803F3945EB1DCB6082957131A00E7113A08521D4C0294429C05A8C097E9A`, gas 278,356. REST: `possession_proven: true`, `key_type: hybrid`, key equals `derivePqcCanonical`. | None |
+| G2 KEM key | **pass** (23 Nov) | Hybrid `MsgRegisterKEMKey` tx `239683C28674613BBE8FB54348BC6F5629F46E92A8EB0AEF32518DECBCAA3825`, gas 247,499. REST: `algorithm_id: 2`, same key bytes. | None |
+| G3 Records | **pass** (23 Nov) | Contract `qor17jq8wze2n9m02c6vtkle6uxr4xccq07e6gxc2np7zq78feuv7tnq2wpp8d` (tx `5121FCF7…F365C6`). `MsgSend` + 7 records in one hybrid tx `93A7B596014A2726D18B529A3D9D0F07CDB0026720BCEFC598C70C02C29B5BD4`: simulate 2,321,036 gas, used 817,224, wanted 3,017,347, fee 452,603 uqor. No contract gas limit was hit. | None |
+| G4 QoreX payment | pending | Needs the browser page and the QoreX extension. | |
+| G5 Spend | **pass** (23 Nov) | Tx 1 `MsgRegisterPQCKeyV2` `7BBBF9300C0E7EECE488B4942A542A5E5C0D077BF3CA2A6A97B796321F444DE3` (gas 278,356, about 0.059 QOR). Tx 2 hybrid `MsgSend` `312346D87C20717906386C78284CF97EEDB8FEB130F95559EE675673567CEE7A` (gas 162,846, fee 34,133 uqor), event `pqc_hybrid_verify`. Total about 0.093 QOR. | None. The bundled form was not tested. |
+| G6 Scan | **pass** (23 Nov) | `scan.ts`: 2 transactions, 1 announcement, 1 found (the G3 payment), 709 ms. | None |
 | G7 Handles (optional) | pending | | |
 | G8 Gateway (day 4) | pending | | |
 | G9 Normal wallets for method 2 (day 6) | pending | | |

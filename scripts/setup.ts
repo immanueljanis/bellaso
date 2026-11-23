@@ -12,22 +12,9 @@ import {
   msg,
 } from "@qorechain/sdk";
 
+import { balanceUqor, rest } from "./lib/rest";
+
 const MIN_SETUP_UQOR = 100_000n;
-
-/** Reads a JSON document from the testnet REST endpoint. */
-async function rest<T>(path: string): Promise<T> {
-  const response = await fetch(`${TESTNET.rest}${path}`);
-  if (!response.ok) throw new Error(`GET ${path} answered ${response.status}`);
-  return (await response.json()) as T;
-}
-
-/** The uqor balance of an address. */
-async function balanceUqor(address: string): Promise<bigint> {
-  const body = await rest<{ balance?: { amount: string } }>(
-    `/cosmos/bank/v1beta1/balances/${address}/by_denom?denom=${TESTNET.denoms.QOR.denom}`,
-  );
-  return BigInt(body.balance?.amount ?? "0");
-}
 
 /** Prints one transaction as evidence for docs/PLAN.md section 3. */
 function evidence(step: string, result: BroadcastResult | undefined, hash: string | undefined) {

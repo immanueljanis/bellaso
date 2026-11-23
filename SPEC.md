@@ -167,7 +167,7 @@ Each term has one meaning in all Bellaso documents.
 
 1. Open the link. The app reads the secp256k1 public key and the KEM key of account A from the chain, through the Bellaso gateway.
 2. Type the amount of fUSD. The app calculates the one-time address in the browser.
-3. Connect QoreX. Sign **one native transaction**. The transaction sends the fUSD and a QOR gas allowance to the one-time address. It also writes the announcement as 7 short records into the Bellaso announcement contract. `docs/TECH_SPEC.md` sections 5 and 7.2 give the details. The expected fee is 0.3 to 0.45 QOR (estimate from a simulation).
+3. Connect QoreX. Sign **one native transaction**. The transaction sends the fUSD and a QOR gas allowance to the one-time address. It also writes the announcement as 7 short records into the Bellaso announcement contract. `docs/TECH_SPEC.md` sections 5 and 7.2 give the details. The fee was 0.45 QOR in gate G3 (MEASURED). QoreX sets its own gas limit, so gate G4 measures the QoreX fee.
 4. The receipt page shows: "Paid to a fresh address. Nobody can link it to this link, now or after Q-Day." It also shows a link to the explorer.
 
 ### 7.3 Recipient: inbox

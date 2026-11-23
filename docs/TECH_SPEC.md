@@ -210,7 +210,7 @@ Facts (CONFIRMED in QoreX 0.4.3 and `qorex-integrations`):
 - The result is `{ txHash, code, height?, shield }`. Check `capabilities` before the call.
 - Do not set a memo.
 
-Cost estimate from simulation: a transaction with one record uses about 481k gas. Each further record adds about 278k gas. Thus `MsgSend` + 7 records costs about 0.3 to 0.45 QOR. With base64 (16 records) it costs about 0.9 QOR. UNCERTAIN: a per-transaction contract execution budget of 1.5M gas can refuse 7 records (gate G3).
+Cost (MEASURED, gate G3, 23 Nov 2026): `MsgSend` + 7 records in one hybrid transaction simulated at 2,321,036 gas and used 817,224 gas. The SDK asked for 3,017,347 gas (simulation × 1.3), and the fee was 452,603 uqor (0.45 QOR) at 0.15 uqor per gas. The chain charges the gas limit, not the gas used. Thus a lower explicit limit (for example used × 1.5 ≈ 1.23M gas, about 0.18 QOR) can cut the fee in the CLI; QoreX sets its own limit (gate G4). No contract execution limit refused the 7 records.
 
 ### 7.3 Spend (recipient, SDK)
 
@@ -223,7 +223,7 @@ The one-time account is a coin-118 secp256k1 account. Sign with `directSignerFro
 
 Do not put the registration and the send in one transaction. The chain probably refuses it, and all 100 recent registrations on testnet were single-message transactions (UNCERTAIN, gate G5).
 
-**Gas allowance.** Transaction 1 costs about 0.03 QOR. A hybrid `MsgSend` with 2 coins costs about 0.02 QOR (166k to 217k gas). The default allowance is **0.15 QOR** (`150000uqor`). Gate G5 measures the real value.
+**Gas allowance.** MEASURED in gate G5 (23 Nov 2026): transaction 1 used 278,356 gas and cost about 0.059 QOR. Transaction 2 (hybrid `MsgSend`) used 162,846 gas, with a limit of 227,551 and a fee of 34,133 uqor. The total is about 0.093 QOR. The default allowance of **0.15 QOR** (`150000uqor`) is enough.
 
 **"Send all".** The app sends the full fUSD balance and the QOR balance minus the fee of transaction 2.
 
@@ -235,8 +235,8 @@ Do not put the registration and the send in one transaction. The chain probably 
 
 **Gas.** A normal transfer brings no QOR. Before the spend, the app checks the QOR balance of `addr_i`:
 
-1. If the balance is 0.06 QOR or more (the payer added QOR), spend at once.
-2. Else, call the gateway `POST /v1/sponsor-gas` with `addr_i` (section 9.5). The sponsor sends 0.06 QOR. This covers transaction 1 (about 0.03 QOR) and transaction 2 (about 0.02 QOR).
+1. If the balance is 0.12 QOR or more (the payer added QOR), spend at once.
+2. Else, call the gateway `POST /v1/sponsor-gas` with `addr_i` (section 9.5). The sponsor sends 0.12 QOR. This covers transaction 1 (0.059 QOR) and transaction 2 (0.034 QOR), MEASURED in gate G5, with a margin.
 
 **Spend.** The same two transactions as section 7.3, with `k_i` and `(pk_i, sk_i)` from section 4.6.
 
@@ -314,7 +314,7 @@ The scan never asks for the balance of a single stealth address. The spend scree
 | `GET /v1/announcements?after=<height>&limit=<n>` | All valid announcements after a height, in height order | `limit` is 500 or less. There is no other parameter. |
 | `POST /v1/sponsor` | Body `{ "address": "qor1..." }`. Sends the sponsor amount to a new account A | Section 9.5 |
 | `GET /v1/transfers?after=<height>&limit=<n>` | All bank transfers of the four test denoms after a height: `{ txHash, height, from, to, amount }` | `limit` is 1,000 or less. There is no address parameter. |
-| `POST /v1/sponsor-gas` | Body `{ "address": "qor1..." }`. Sends 0.06 QOR to a stealth address before its first spend | Section 9.5 |
+| `POST /v1/sponsor-gas` | Body `{ "address": "qor1..." }`. Sends 0.12 QOR to a stealth address before its first spend | Section 9.5 |
 
 All routes: a rate limit for each IP address (120 requests each minute) and CORS for the origins in `ALLOWED_ORIGINS` only.
 
@@ -366,10 +366,10 @@ Storage: SQLite with `bun:sqlite` (built into Bun), in a file on a persistent vo
   3. The IP address has 3 or fewer sponsorships in the last 24 hours.
   4. The total for the day is less than `SPONSOR_DAILY_CAP`.
 
-**Gas for a stealth address (method 2).** `POST /v1/sponsor-gas` sends `60000uqor` only if all these conditions are true:
+**Gas for a stealth address (method 2).** `POST /v1/sponsor-gas` sends `120000uqor` only if all these conditions are true:
 
 1. The address has a balance of fUSD, fETH or fBTC that is more than 0.
-2. The address has less than 0.06 QOR.
+2. The address has less than 0.12 QOR.
 3. `/cosmos/auth/v1beta1/accounts/{address}` has no public key. Thus the address has never signed a transaction.
 4. The table `gas_sponsorship` has no row for the address.
 5. The IP address and daily limits of the sponsor apply.
