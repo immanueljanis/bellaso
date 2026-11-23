@@ -2,6 +2,7 @@
 
 import { type Coin, TESTNET } from "@bellaso/chain";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { formatCoin, mainCoin } from "@/src/amount";
 import { type Recipient, balancesOf, deriveRecipient } from "@/src/chain-client";
@@ -48,6 +49,12 @@ export function SpendClient({ txHash }: { txHash: string }) {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<{ hash: string; hybrid: boolean } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const spentBefore = payment?.spentTx && !result ? payment.spentTx : null;
+
+  useEffect(() => {
+    if (spentBefore) router.replace(txUrl(spentBefore));
+  }, [spentBefore, router]);
 
   useEffect(() => {
     if (!vault || !payment || payment.spentTx) return;
@@ -167,9 +174,7 @@ export function SpendClient({ txHash }: { txHash: string }) {
               {payment.spentTx && !result ? (
                 <div className={ui.done}>
                   <p className={ui.doneTitle}>Already spent.</p>
-                  <p className={ui.stepDetail}>
-                    tx <a href={txUrl(payment.spentTx)}>{short(payment.spentTx)}</a>
-                  </p>
+                  <p className={ui.stepDetail}>Opening the transaction…</p>
                 </div>
               ) : (
                 <div className={ui.card}>

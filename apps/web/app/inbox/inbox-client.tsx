@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { formatCoin, mainCoin } from "@/src/amount";
 import { deriveRecipient } from "@/src/chain-client";
+import { txUrl } from "@/src/gateway";
 import { type GatewayAnnouncement, fetchAnnouncements, fetchTransfers, matchStealth, mergePayments, openItem } from "@/src/inbox";
 import { type InboxPayment, type VaultData, updateVault } from "@/src/vault";
 import { SiteHeader } from "../site-header";
@@ -201,7 +202,7 @@ export function InboxClient() {
                         </div>
                         <span className={styles.address}>{short(payment.address)}</span>
                         <span className={`${styles.status} ${payment.spentTx ? styles.spent : ""}`}>{payment.spentTx ? "Spent" : "Unspent"}</span>
-                        <Link href={`/spend/${payment.txHash}`} className={styles.action}>
+                        <Link href={payment.spentTx ? txUrl(payment.spentTx) : `/spend/${payment.txHash}`} className={styles.action}>
                           {payment.spentTx ? "View" : "Spend"} →
                         </Link>
                       </li>
