@@ -88,6 +88,8 @@ All values are MEASURED on `qorechain-diana` in November 2026. `docs/PLAN.md` se
 | The scan finds every payment and no false positive | `scan.ts`: 13 announcements, 7 found for account A, 0 false positives |
 | The gateway serves the same announcements as the chain | `scan.ts --source chain` and `--source gateway` give identical output |
 | A third party with public data only cannot link a payment to the recipient | `link-attempt.ts` on the demo recipient: 0 matches for all five links to the recipient (H1 to H5) |
+| A stealth address gets a normal QoreX Send, the inbox finds it, and it is spent with two signatures | QoreX Send `58C8C659…3793`, spend `2F433B8F…84F3` with `pqc_hybrid_verify`; `link-attempt` still finds no link |
+| A stolen classical key moves nothing | `qday-drill.ts`: a native send, an EVM window, an EVM transfer, an ERC-20 transfer and an approve were all refused; the balances did not change |
 
 ## Run
 
