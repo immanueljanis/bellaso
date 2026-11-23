@@ -1,6 +1,9 @@
+import { TESTNET } from "@bellaso/chain";
+
 export interface GatewayConfig {
   port: number;
   allowedOrigins: string[];
+  chainRest: string;
 }
 
 /** Reads the gateway configuration from the environment (TECH_SPEC section 9.6). */
@@ -13,5 +16,6 @@ export function readConfig(env: Record<string, string | undefined> = process.env
     .split(",")
     .map((origin) => origin.trim())
     .filter((origin) => origin.length > 0);
-  return { port, allowedOrigins };
+  const chainRest = (env.CHAIN_REST ?? TESTNET.rest).replace(/\/+$/, "");
+  return { port, allowedOrigins, chainRest };
 }
