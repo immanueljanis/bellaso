@@ -113,6 +113,65 @@ export function InboxClient() {
               </button>
             </div>
 
+            <section aria-labelledby="payments-title" className={styles.payments}>
+              <div className={styles.paymentsHead}>
+                <h2 id="payments-title" className={styles.paymentsTitle}>
+                  Payments
+                </h2>
+                <span className={styles.unspent}>
+                  Unspent <strong>{unspent.length === 0 ? "nothing" : unspentTotal}</strong>
+                  {unspent.length > 1 && ` in ${unspent.length} payments`}
+                </span>
+              </div>
+              {unspent.length > 0 && (
+                <p className={styles.note}>
+                  Wait before you spend. A spend right after a payment is easy to match by time. Each spend also shows its one-time address on chain.
+                </p>
+              )}
+
+              {payments.length === 0 && scan && !scan.running ? (
+                <div className={styles.empty}>
+                  <p className={styles.emptyTitle}>Nothing here yet</p>
+                  <p className={ui.hintLeft}>
+                    Share your link. Each payment shows here after a scan, and only this browser can tell that it is yours.
+                  </p>
+                  <Link href="/receive" className={ui.primaryLink}>
+                    Get my payment link
+                  </Link>
+                </div>
+              ) : (
+                <ul className={styles.rows}>
+                  {payments.map((payment) => {
+                    const { main, gas } = mainCoin(payment.amount);
+                    return (
+                      <li key={`${payment.txHash}/${payment.address}`} className={styles.row}>
+                        <div className={styles.amountCell}>
+                          <span className={styles.amount}>{main ? formatCoin(main) : "nothing"}</span>
+                          {gas && <span className={styles.gas}>+ {formatCoin(gas)} for gas</span>}
+                        </div>
+                        <div className={styles.whereCell}>
+                          <span>{labelOf(payment)}</span>
+                          <span className={styles.block}>
+                            {payment.from ? `from ${short(payment.from)} · ` : ""}block {payment.height.toLocaleString("en-US")}
+                          </span>
+                        </div>
+                        <span className={styles.address}>{short(payment.address)}</span>
+                        <span className={`${styles.status} ${payment.spentTx ? styles.spent : ""}`}>{payment.spentTx ? "Spent" : "Unspent"}</span>
+                        <Link href={payment.spentTx ? txUrl(payment.spentTx) : `/spend/${payment.txHash}`} className={styles.action}>
+                          {payment.spentTx ? "View" : "Spend"} →
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+              {error && (
+                <p className={ui.error} role="alert">
+                  {error}
+                </p>
+              )}
+            </section>
+
             <figure className={`${ui.side} ${styles.figure}`}>
               <span className={`${ui.corner} ${ui.tl}`} aria-hidden="true" />
               <span className={`${ui.corner} ${ui.tr}`} aria-hidden="true" />
@@ -171,60 +230,6 @@ export function InboxClient() {
                 </span>
               </figcaption>
             </figure>
-
-            <section aria-labelledby="payments-title" className={styles.payments}>
-              <div className={styles.paymentsHead}>
-                <h2 id="payments-title" className={styles.paymentsTitle}>
-                  Payments
-                </h2>
-                <span className={styles.unspent}>
-                  Unspent <strong>{unspent.length === 0 ? "nothing" : unspentTotal}</strong>
-                  {unspent.length > 1 && ` in ${unspent.length} payments`}
-                </span>
-              </div>
-
-              {payments.length === 0 && scan && !scan.running ? (
-                <div className={styles.empty}>
-                  <p className={styles.emptyTitle}>Nothing here yet</p>
-                  <p className={ui.hintLeft}>
-                    Share your link. Each payment shows here after a scan, and only this browser can tell that it is yours.
-                  </p>
-                </div>
-              ) : (
-                <ul className={styles.rows}>
-                  {payments.map((payment) => {
-                    const { main, gas } = mainCoin(payment.amount);
-                    return (
-                      <li key={`${payment.txHash}/${payment.address}`} className={styles.row}>
-                        <div className={styles.amountCell}>
-                          <span className={styles.amount}>{main ? formatCoin(main) : "nothing"}</span>
-                          {gas && <span className={styles.gas}>+ {formatCoin(gas)} for gas</span>}
-                        </div>
-                        <div className={styles.whereCell}>
-                          <span>{labelOf(payment)}</span>
-                          <span className={styles.block}>
-                            {payment.from ? `from ${short(payment.from)} · ` : ""}block {payment.height.toLocaleString("en-US")}
-                          </span>
-                        </div>
-                        <span className={styles.address}>{short(payment.address)}</span>
-                        <span className={`${styles.status} ${payment.spentTx ? styles.spent : ""}`}>{payment.spentTx ? "Spent" : "Unspent"}</span>
-                        <Link href={payment.spentTx ? txUrl(payment.spentTx) : `/spend/${payment.txHash}`} className={styles.action}>
-                          {payment.spentTx ? "View" : "Spend"} →
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-              {error && (
-                <p className={ui.error} role="alert">
-                  {error}
-                </p>
-              )}
-              <p className={styles.note}>
-                Wait before you spend. A spend right after a payment is easy to match by time. Each spend also shows its one-time address on chain.
-              </p>
-            </section>
           </>
         )}
       </main>

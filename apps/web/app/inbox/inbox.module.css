@@ -12,7 +12,7 @@
 }
 
 .figure {
-  margin-top: 40px;
+  margin-top: 64px;
 }
 
 .figureHead {
@@ -99,7 +99,7 @@
 }
 
 .payments {
-  margin-top: 48px;
+  margin-top: 40px;
 }
 
 .paymentsHead {
@@ -219,7 +219,7 @@
 }
 
 .note {
-  margin: 24px 0 0;
+  margin: 14px 0 0;
   max-width: 70ch;
   font-size: 13px;
   color: var(--chalk-muted);
@@ -227,12 +227,10 @@
 
 @media (max-width: 720px) {
   .payments {
-    order: 1;
     margin-top: 32px;
   }
 
   .figure {
-    order: 2;
     margin-top: 48px;
   }
 }
