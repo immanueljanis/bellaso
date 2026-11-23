@@ -11,6 +11,7 @@ import { chainKeys, fundAccount, registerKemKey, registerSigningKey, setupNeeds 
 import { createVault, exportVault, hasVault, openVault, unlockVault } from "@/src/vault";
 import { SiteHeader } from "../site-header";
 import ui from "../ui.module.css";
+import { useCopied } from "../use-copied";
 import styles from "./create.module.css";
 
 const MIN_PASSPHRASE = 12;
@@ -75,7 +76,7 @@ export function CreateClient() {
   const [log, setLog] = useState<LoggedTx[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const { copied, copy } = useCopied();
   const [origin, setOrigin] = useState("");
 
   useEffect(() => {
@@ -181,11 +182,6 @@ export function CreateClient() {
     URL.revokeObjectURL(url);
   }
 
-  async function copyLink(link: string) {
-    await navigator.clipboard.writeText(link);
-    setCopied(true);
-  }
-
   const [link, setLink] = useState("");
   useEffect(() => {
     if (recipient && origin) void paymentLink(origin, recipient.address, recipient.kemPublicKey).then(setLink);
@@ -222,7 +218,7 @@ export function CreateClient() {
                 </label>
                 <div className={styles.linkRow}>
                   <input id="paylink" readOnly value={link} className={`${ui.input} ${styles.linkInput}`} />
-                  <button type="button" className={`${ui.primary} ${styles.copy}`} onClick={() => copyLink(link)}>
+                  <button type="button" className={`${ui.primary} ${styles.copy}`} onClick={() => copy(link)}>
                     {copied ? "Copied" : "Copy link"}
                   </button>
                 </div>

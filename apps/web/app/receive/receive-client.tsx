@@ -10,6 +10,7 @@ import { type StealthEntry, updateVault } from "@/src/vault";
 import { QrCode } from "../qr-code";
 import { SiteHeader } from "../site-header";
 import ui from "../ui.module.css";
+import { useCopied } from "../use-copied";
 import { VaultGate, useVault } from "../vault-gate";
 import styles from "./receive.module.css";
 
@@ -40,7 +41,7 @@ export function ReceiveClient() {
   const [askText, setAskText] = useState("");
   const [askSymbol, setAskSymbol] = useState<(typeof PAYMENT_TOKENS)[number]["symbol"]>("fUSD");
   const [made, setMade] = useState<StealthEntry | null>(null);
-  const [copied, setCopied] = useState<string | null>(null);
+  const { copied, copy } = useCopied();
   const [transfers, setTransfers] = useState<GatewayTransfer[] | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -71,11 +72,6 @@ export function ReceiveClient() {
   const askValid = toBaseUnits(askText, PAYMENT_TOKENS.find((token) => token.symbol === askSymbol)!.decimals) !== null;
   const sharedLink = link ? withRequest(link, askValid ? { amount: askText.trim(), symbol: askSymbol } : null) : "";
 
-  async function copy(text: string, what: string) {
-    await navigator.clipboard.writeText(text);
-    setCopied(what);
-  }
-
   async function make() {
     if (!vault || label.trim().length === 0) return;
     setBusy(true);
@@ -94,7 +90,6 @@ export function ReceiveClient() {
       opened({ ...vault, stealth: [entry, ...stealth] });
       setMade(entry);
       setLabel("");
-      setCopied(null);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
     } finally {
@@ -172,10 +167,7 @@ export function ReceiveClient() {
                         autoComplete="off"
                         placeholder="150"
                         value={askText}
-                        onChange={(event) => {
-                          setAskText(event.target.value);
-                          setCopied(null);
-                        }}
+                        onChange={(event) => setAskText(event.target.value)}
                       />
                       <label htmlFor="ask-token" className="sr-only">
                         Token
@@ -184,10 +176,7 @@ export function ReceiveClient() {
                         id="ask-token"
                         className={`${ui.input} ${styles.askToken}`}
                         value={askSymbol}
-                        onChange={(event) => {
-                          setAskSymbol(event.target.value as typeof askSymbol);
-                          setCopied(null);
-                        }}
+                        onChange={(event) => setAskSymbol(event.target.value as typeof askSymbol)}
                       >
                         {PAYMENT_TOKENS.map((token) => (
                           <option key={token.symbol}>{token.symbol}</option>

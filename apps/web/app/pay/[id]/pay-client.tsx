@@ -11,6 +11,7 @@ import { type QorexSignAndBroadcastResult, connectQorex, explainQorexError, qore
 import { QrCode } from "../../qr-code";
 import { SiteHeader } from "../../site-header";
 import ui from "../../ui.module.css";
+import { useCopied } from "../../use-copied";
 import styles from "./pay.module.css";
 
 const TOKENS = PAYMENT_TOKENS;
@@ -32,7 +33,7 @@ export function PayClient({ recipient }: { recipient: string }) {
   const [result, setResult] = useState<QorexSignAndBroadcastResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [hasQorex, setHasQorex] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const { copied, copy } = useCopied();
   const [href, setHref] = useState("");
   const [asked, setAsked] = useState(false);
 
@@ -86,11 +87,6 @@ export function PayClient({ recipient }: { recipient: string }) {
     }
   }
 
-  async function copyLink() {
-    await navigator.clipboard.writeText(phoneLink);
-    setCopied(true);
-  }
-
   const steps = plan
     ? [
         { label: "Sealed a secret to the recipient’s key", detail: `ML-KEM-1024 · ciphertext 1,568 B · ${plan.recordCount} records`, done: true },
@@ -127,7 +123,7 @@ export function PayClient({ recipient }: { recipient: string }) {
                     <li>In the QoreX app, turn on Settings › Use testnet (developers).</li>
                     <li>Open the link in the QoreX browser and pay there.</li>
                   </ol>
-                  <button type="button" className={ui.secondary} onClick={copyLink}>
+                  <button type="button" className={ui.secondary} onClick={() => copy(phoneLink)}>
                     {copied ? "Link copied" : "Copy this link"}
                   </button>
                 </div>
