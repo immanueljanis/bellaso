@@ -252,6 +252,7 @@ export function CreateClient() {
                   type="password"
                   className={ui.input}
                   autoComplete="current-password"
+                  autoFocus
                   value={passphrase}
                   onChange={(event) => setPassphrase(event.target.value)}
                 />

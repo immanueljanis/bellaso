@@ -52,7 +52,14 @@ export function UnlockForm({ onUnlocked, children }: { onUnlocked: (vault: Vault
         void submit();
       }}
     >
-      {children ?? <p className={ui.doneTitle}>Unlock your Bellaso</p>}
+      {children ?? (
+        <>
+          <p className={ui.doneTitle}>Unlock your Bellaso</p>
+          <p className={ui.hintLeft} style={{ marginTop: 8 }}>
+            Your keys stay encrypted in this browser. A reload or a new tab locks them again, and your passphrase opens them.
+          </p>
+        </>
+      )}
       <label htmlFor="unlock" className={ui.label} style={{ marginTop: 18 }}>
         Passphrase
       </label>
@@ -61,6 +68,7 @@ export function UnlockForm({ onUnlocked, children }: { onUnlocked: (vault: Vault
         type="password"
         className={ui.input}
         autoComplete="current-password"
+        autoFocus
         value={passphrase}
         onChange={(event) => setPassphrase(event.target.value)}
       />
