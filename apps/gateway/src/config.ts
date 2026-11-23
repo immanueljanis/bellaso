@@ -14,8 +14,8 @@ export interface GatewayConfig {
   sponsorDailyCap: number;
   /** The first height of the transfer index. Older transfers are not served. */
   transfersFromHeight: number;
-  /** Proxies in front of the gateway (Railway: 1). Fastify takes the client IP after that many hops. */
-  trustProxyHops: number;
+  /** The header that holds the client IP, set and overwritten by the edge proxy (Railway: `x-real-ip`). Empty: the socket address. */
+  clientIpHeader: string;
 }
 
 const trimSlash = (url: string) => url.replace(/\/+$/, "");
@@ -45,6 +45,6 @@ export function readConfig(env: Record<string, string | undefined> = process.env
     sponsorAmountUqor: integer(env, "SPONSOR_AMOUNT_UQOR", 120_000, 1),
     sponsorDailyCap: integer(env, "SPONSOR_DAILY_CAP", 50, 0),
     transfersFromHeight: integer(env, "TRANSFERS_FROM_HEIGHT", 10_600_000, 0),
-    trustProxyHops: integer(env, "TRUST_PROXY_HOPS", 1, 0),
+    clientIpHeader: (env.CLIENT_IP_HEADER ?? "x-real-ip").trim().toLowerCase(),
   };
 }

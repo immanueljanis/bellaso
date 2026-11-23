@@ -330,7 +330,7 @@ The scan never asks for the balance of a single stealth address. The spend scree
 |---|---|---|
 | `GET /v1/health` | Answers `{ "ok": true }` | None |
 | `GET /v1/lcd/*` | REST read | Allowed path prefixes: `/cosmos/auth/v1beta1/accounts/`, `/cosmos/bank/v1beta1/balances/`, `/qorechain/pqc/v1/`, `/cosmwasm/wasm/v1/contract/`, `/cosmos/tx/v1beta1/txs/`, `/cosmos/upgrade/v1beta1/applied_plan/`. The SDK `ensurePqcRegistered` reads the last one to select the sign bytes of the proof of possession (found in gate G8). Other paths, `..` segments and unusual characters get 403. |
-| `POST /v1/rpc` | CometBFT JSON-RPC. The SDK reads accounts, simulates, broadcasts and waits through it. | Allowed methods: `status`, `abci_info`, `abci_query`, `broadcast_tx_sync`, `tx`, `tx_search`, `block`. One call or a batch of 10 calls or fewer. Other methods get 403. |
+| `POST /v1/rpc` | CometBFT JSON-RPC. The SDK reads accounts, simulates, broadcasts and waits through it. | Allowed methods: `status`, `abci_info`, `abci_query`, `broadcast_tx_sync`, `tx`, `block`. No `tx_search`: it is the most expensive query, and the browser reads the gateway feeds instead. One call or a batch of 10 calls or fewer. Other methods get 403. |
 | `GET /v1/announcements?after=<height>&limit=<n>` | All valid announcements above a height, in height order | `limit` is 500 or less. A larger `limit` is cut to 500, not refused. There is no other parameter. |
 | `GET /v1/transfers?after=<height>&limit=<n>` | All bank transfers of the four test denoms above a height | `limit` is 1,000 or less. A larger `limit` is cut to 1,000, not refused. There is no address parameter. |
 | `POST /v1/sponsor` | Body `{ "address": "qor1..." }`. Sends the sponsor amount to a new account A | Section 9.5 |
@@ -415,7 +415,7 @@ Storage: memory only. A restart or a wake from sleep rebuilds both indexes from 
 
 **State.** All limits are in memory. A restart resets the IP limits, the daily total and the list of funded addresses. The chain checks still stop a second sponsorship of one address. After a setup sponsorship, the account exists on chain. A stealth address keeps 0.12 QOR until its first spend, and after the spend it has a public key.
 
-**Client IP address.** The gateway takes the client IP address from `X-Forwarded-For` behind `TRUST_PROXY_HOPS` trusted proxy hops (default 1, the Railway proxy). If a client could reach the gateway without the Railway proxy, it could forge this header and pass the IP limit (THREAT_MODEL R19). The gateway keeps the IP address only as SHA-256(random salt of the process ‖ IP address).
+**Client IP address.** The rate limit and the sponsor limits count each client by the header `CLIENT_IP_HEADER` (default `x-real-ip`). The Railway edge sets `X-Real-IP` and replaces any copy that the client sends (Railway staff answers). Its hop count in `X-Forwarded-For` is not fixed: MEASURED on 23 Nov 2026, a trust of 1 hop split one client over several rate-limit buckets. Without the header, the socket address counts. If a client could reach the gateway without the Railway edge, it could forge the header (THREAT_MODEL R19).
 
 **Sends.** One queue runs every send, one at a time. Thus two sends never use the same account sequence. The gateway answers 200 only when the chain accepts the send.
 
@@ -451,7 +451,7 @@ A chain observer sees a transfer from the sponsor wallet to the address. This sh
 | `SPONSOR_AMOUNT_UQOR` | `120000` |
 | `SPONSOR_DAILY_CAP` | `50` |
 | `TRANSFERS_FROM_HEIGHT` | `10600000`. The transfer index serves no older transfer. |
-| `TRUST_PROXY_HOPS` | `1` (the Railway proxy) |
+| `CLIENT_IP_HEADER` | `x-real-ip` (set by the Railway edge). Empty: the socket address. |
 
 The web app reads the gateway URL from `NEXT_PUBLIC_GATEWAY_URL`.
 

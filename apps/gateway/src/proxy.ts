@@ -16,7 +16,7 @@ export const REST_READ_PREFIXES = [
  * CometBFT JSON-RPC methods the browser may call through `/v1/rpc` (TECH_SPEC section 9.3):
  * what a signing client needs to read an account, simulate, broadcast and wait.
  */
-export const RPC_METHODS = new Set(["status", "abci_info", "abci_query", "broadcast_tx_sync", "tx", "tx_search", "block"]);
+export const RPC_METHODS = new Set(["status", "abci_info", "abci_query", "broadcast_tx_sync", "tx", "block"]);
 
 /** True when a JSON-RPC body (one call or a batch) uses only allowed methods. */
 export function isAllowedRpcBody(body: unknown): boolean {

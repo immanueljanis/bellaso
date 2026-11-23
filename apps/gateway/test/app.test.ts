@@ -67,9 +67,9 @@ test("readConfig gives the sponsor and transfer defaults and refuses bad numbers
   expect(defaults.sponsorAmountUqor).toBe(120_000);
   expect(defaults.sponsorDailyCap).toBe(50);
   expect(defaults.transfersFromHeight).toBe(10_600_000);
-  expect(defaults.trustProxyHops).toBe(1);
+  expect(defaults.clientIpHeader).toBe("x-real-ip");
+  expect(readConfig({ CLIENT_IP_HEADER: "" }).clientIpHeader).toBe("");
   expect(readConfig({ SPONSOR_MNEMONIC: "  " }).sponsorMnemonic).toBeUndefined();
-  expect(() => readConfig({ TRUST_PROXY_HOPS: "-1" })).toThrow("TRUST_PROXY_HOPS must be an integer");
   expect(() => readConfig({ SPONSOR_AMOUNT_UQOR: "0" })).toThrow("SPONSOR_AMOUNT_UQOR must be an integer");
   expect(() => readConfig({ TRANSFERS_FROM_HEIGHT: "1.5" })).toThrow("TRANSFERS_FROM_HEIGHT must be an integer");
 });
@@ -92,4 +92,16 @@ test("isAllowedRpcBody accepts small batches of allowed methods only", () => {
   expect(isAllowedRpcBody([{ method: "status" }, { method: "dial_peers" }])).toBe(false);
   expect(isAllowedRpcBody(Array.from({ length: 11 }, () => ({ method: "status" })))).toBe(false);
   expect(isAllowedRpcBody("status")).toBe(false);
+  expect(isAllowedRpcBody({ method: "tx_search" })).toBe(false);
+});
+
+test("the rate limit counts each client by X-Real-IP, and a forged X-Forwarded-For does not split it", async () => {
+  const app = await buildApp(config, { fetch: fakeFetch([]) });
+  const hit = (headers: Record<string, string>) => app.inject({ method: "GET", url: "/v1/health", headers });
+  const codes: number[] = [];
+  for (let n = 0; n < 121; n++) codes.push((await hit({ "x-real-ip": "203.0.113.7", "x-forwarded-for": `10.0.0.${n}` })).statusCode);
+  expect(codes.slice(0, 120).every((code) => code === 200)).toBe(true);
+  expect(codes[120]).toBe(429);
+  expect((await hit({ "x-real-ip": "198.51.100.9" })).statusCode).toBe(200);
+  await app.close();
 });

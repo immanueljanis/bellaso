@@ -46,7 +46,7 @@ const post = (url: string, body: unknown, forwardedFor?: string) => ({
   method: "POST" as const,
   url,
   payload: body as object,
-  headers: forwardedFor ? { "x-forwarded-for": forwardedFor } : {},
+  headers: forwardedFor ? { "x-real-ip": forwardedFor } : {},
 });
 
 test("POST /v1/sponsor funds a new account one time and refuses an existing account", async () => {
@@ -106,19 +106,21 @@ test("without a sponsor wallet both sponsor routes answer 503", async () => {
   await app.close();
 });
 
-test("the IP limit counts the client address that the proxy adds, not one the client writes", async () => {
+test("the IP limit counts X-Real-IP from the edge, and a forged X-Forwarded-For does not change it", async () => {
   const sent: [string, number][] = [];
   const app = await buildApp(config, { fetch: fakeChain(), send: fakeSend(sent) });
-  for (const n of [1, 2, 3]) {
-    const response = await app.inject(post("/v1/sponsor", { address: address(n) }, `10.9.9.${n}, 203.0.113.7`));
-    expect(response.statusCode).toBe(200);
-  }
-  const fourth = await app.inject(post("/v1/sponsor", { address: address(4) }, "10.9.9.4, 203.0.113.7"));
+  const ask = (n: number, realIp: string) =>
+    app.inject({
+      method: "POST",
+      url: "/v1/sponsor",
+      payload: { address: address(n) },
+      headers: { "x-real-ip": realIp, "x-forwarded-for": `10.9.9.${n}` },
+    });
+  for (const n of [1, 2, 3]) expect((await ask(n, "203.0.113.7")).statusCode).toBe(200);
+  const fourth = await ask(4, "203.0.113.7");
   expect(fourth.statusCode).toBe(429);
   expect(fourth.json()).toEqual({ error: REFUSALS.ipLimit });
-
-  const other = await app.inject(post("/v1/sponsor", { address: address(4) }, "203.0.113.7, 198.51.100.9"));
-  expect(other.statusCode).toBe(200);
+  expect((await ask(4, "198.51.100.9")).statusCode).toBe(200);
   expect(sent.map(([to]) => to)).toEqual([address(1), address(2), address(3), address(4)]);
   await app.close();
 });

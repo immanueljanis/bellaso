@@ -1,7 +1,7 @@
 import { searchContractTxs, searchTransferTxs } from "@bellaso/chain";
 import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
-import Fastify from "fastify";
+import Fastify, { type FastifyRequest } from "fastify";
 import type { GatewayConfig } from "./config";
 import { AnnouncementIndex, type SearchPage, TransferIndex } from "./indexer";
 import { isAllowedRestRead, isAllowedRpcBody } from "./proxy";
@@ -40,22 +40,24 @@ function pageQuery(query: { after?: string; limit?: string }, max: number): { af
  * public reads and signed transactions, the indexes serve every item to everyone, and the
  * sponsor routes take a public address only.
  *
- * `trustProxy` trusts the first `trustProxyHops` addresses (the socket peer, then
- * `X-Forwarded-For` from the right), so the rate limit and the sponsor limits count each
- * client, not the Railway proxy. Fastify 5.12 trusts no hop when `trustProxy` is a number,
- * so the hop count goes in as a function. This is safe only while every request comes
- * through the proxy, as on Railway. Ajv keeps extra properties so that
+ * The rate limit and the sponsor limits count each client by `clientIpHeader`. The Railway
+ * edge sets `X-Real-IP` and replaces any copy that the client sends, while its hop count in
+ * `X-Forwarded-For` is not fixed (MEASURED: a hop count of 1 split one client over several
+ * buckets). Without the header, the socket address counts. Ajv keeps extra properties so that
  * `additionalProperties: false` refuses them instead of removing them.
  */
 export async function buildApp(config: GatewayConfig, deps: GatewayDeps = { fetch: globalThis.fetch }) {
   const app = Fastify({
     logger: false,
     bodyLimit: MAX_BODY,
-    trustProxy: (_address: string, hop: number) => hop < config.trustProxyHops,
     ajv: { customOptions: { removeAdditional: false } },
   });
   await app.register(cors, { origin: config.allowedOrigins });
-  await app.register(rateLimit, { max: 120, timeWindow: "1 minute" });
+  const clientIp = (request: FastifyRequest): string => {
+    const value = config.clientIpHeader ? request.headers[config.clientIpHeader] : undefined;
+    return (Array.isArray(value) ? value[0] : value)?.trim() || request.ip;
+  };
+  await app.register(rateLimit, { max: 120, timeWindow: "1 minute", keyGenerator: clientIp });
 
   const search: SearchPage =
     deps.search ?? ((minHeight, page) => searchContractTxs(config.chainRpc, config.announcementContract, { minHeight, page }));
@@ -115,13 +117,13 @@ export async function buildApp(config: GatewayConfig, deps: GatewayDeps = { fetc
 
   app.post<{ Body: { address: string } }>("/v1/sponsor", sponsorRoute, async (request, reply) => {
     if (request.validationError) return reply.code(400).send({ error: REFUSALS.badAddress });
-    const { code, body } = await sponsor.fund(request.body.address, request.ip);
+    const { code, body } = await sponsor.fund(request.body.address, clientIp(request));
     return reply.code(code).send(body);
   });
 
   app.post<{ Body: { address: string } }>("/v1/sponsor-gas", sponsorRoute, async (request, reply) => {
     if (request.validationError) return reply.code(400).send({ error: REFUSALS.badAddress });
-    const { code, body } = await sponsor.fundGas(request.body.address, request.ip);
+    const { code, body } = await sponsor.fundGas(request.body.address, clientIp(request));
     return reply.code(code).send(body);
   });
 
