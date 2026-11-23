@@ -7,6 +7,8 @@
     "typecheck": "tsc --noEmit -p ."
   },
   "dependencies": {
-    "@bellaso/chain": "workspace:*"
+    "@bellaso/chain": "workspace:*",
+    "@qorechain/qoreseal": "0.1.0",
+    "@qorechain/sdk": "0.14.0"
   }
 }
