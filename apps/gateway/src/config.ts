@@ -4,7 +4,11 @@ export interface GatewayConfig {
   port: number;
   allowedOrigins: string[];
   chainRest: string;
+  chainRpc: string;
+  announcementContract: string;
 }
+
+const trimSlash = (url: string) => url.replace(/\/+$/, "");
 
 /** Reads the gateway configuration from the environment (TECH_SPEC section 9.6). */
 export function readConfig(env: Record<string, string | undefined> = process.env): GatewayConfig {
@@ -16,6 +20,11 @@ export function readConfig(env: Record<string, string | undefined> = process.env
     .split(",")
     .map((origin) => origin.trim())
     .filter((origin) => origin.length > 0);
-  const chainRest = (env.CHAIN_REST ?? TESTNET.rest).replace(/\/+$/, "");
-  return { port, allowedOrigins, chainRest };
+  return {
+    port,
+    allowedOrigins,
+    chainRest: trimSlash(env.CHAIN_REST ?? TESTNET.rest),
+    chainRpc: trimSlash(env.CHAIN_RPC ?? TESTNET.rpc),
+    announcementContract: env.ANNOUNCEMENT_CONTRACT ?? TESTNET.announcementContract,
+  };
 }

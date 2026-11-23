@@ -1,9 +1,15 @@
 import { expect, test } from "bun:test";
 import { buildApp } from "../src/app";
 import { readConfig } from "../src/config";
-import { isAllowedRestRead } from "../src/proxy";
+import { isAllowedRestRead, isAllowedRpcBody } from "../src/proxy";
 
-const config = { port: 0, allowedOrigins: ["http://localhost:3000"], chainRest: "https://rest.example" };
+const config = {
+  port: 0,
+  allowedOrigins: ["http://localhost:3000"],
+  chainRest: "https://rest.example",
+  chainRpc: "https://rpc.example",
+  announcementContract: "qor1contract",
+};
 
 /** A fetch double that records the URLs it is asked for and answers with JSON. */
 function fakeFetch(calls: string[]): typeof fetch {
@@ -59,4 +65,24 @@ test("readConfig refuses a bad port and splits the origins", () => {
     "https://b.example",
   ]);
   expect(readConfig({ CHAIN_REST: "https://rest.example/" }).chainRest).toBe("https://rest.example");
+});
+
+test("the RPC proxy passes allowed methods and refuses others", async () => {
+  const calls: string[] = [];
+  const app = await buildApp(config, { fetch: fakeFetch(calls) });
+  const status = await app.inject({ method: "POST", url: "/v1/rpc", payload: { jsonrpc: "2.0", id: 1, method: "status", params: {} } });
+  expect(status.statusCode).toBe(200);
+  expect(calls).toEqual(["https://rpc.example"]);
+  const unsafe = await app.inject({ method: "POST", url: "/v1/rpc", payload: { jsonrpc: "2.0", id: 2, method: "unsafe_flush_mempool" } });
+  expect(unsafe.statusCode).toBe(403);
+  expect(calls.length).toBe(1);
+  await app.close();
+});
+
+test("isAllowedRpcBody accepts small batches of allowed methods only", () => {
+  expect(isAllowedRpcBody({ method: "abci_query" })).toBe(true);
+  expect(isAllowedRpcBody([{ method: "status" }, { method: "tx" }])).toBe(true);
+  expect(isAllowedRpcBody([{ method: "status" }, { method: "dial_peers" }])).toBe(false);
+  expect(isAllowedRpcBody(Array.from({ length: 11 }, () => ({ method: "status" })))).toBe(false);
+  expect(isAllowedRpcBody("status")).toBe(false);
 });

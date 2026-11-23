@@ -31,6 +31,40 @@
 
 Post progress on X with #BuildBeforeQDay on days 1, 3, 5, 7 and 9. The jury looks at the build history.
 
+### 2.1 Backlog (updated 23 Nov, end of day 1)
+
+Done on day 1: gates G1 to G6 on testnet, the core cryptography with tests, the CLI scripts (setup, records, scan, spend), the gateway REST proxy on Railway, the `/pay` page on Vercel, auto-deploys for both.
+
+A. Gateway
+- [x] A1 `/v1/announcements`: index of all valid announcements (TECH_SPEC section 9.4). Live test: 2 items, 0 rejected.
+- [x] A2 `/v1/rpc`: JSON-RPC proxy with a method allowlist, so the browser can sign and broadcast
+- [ ] A3 `/v1/sponsor`: fund a new account A; fund the sponsor wallet; `SPONSOR_MNEMONIC` on Railway
+- [ ] A4 `/v1/transfers` and `/v1/sponsor-gas` (method 2)
+
+B. Web
+- [ ] B5 `/create`: setup in the browser, encrypted vault, sponsor
+- [ ] B6 `/inbox`: scan in a Web Worker from `/v1/announcements`
+- [ ] B7 `/spend`: two transactions, link warnings
+- [ ] B8 `/receive`: payment link and stealth addresses (method 2)
+- [ ] B9 Landing page from the design canvas; receipt polish
+
+C. Proof
+- [ ] C10 `link-attempt.ts` (AC6)
+- [ ] C11 Demo data: 20 or more payments to 2 or more recipients (AC4)
+- [ ] C12 Gates G8 (browser through the gateway) and G9 (normal wallets, method 2)
+- [ ] C13 `scan.ts --source gateway` equals `--source chain` (AC10)
+
+D. Submission
+- [ ] D14 Final README with the architecture diagram
+- [ ] D15 Final `docs/THREAT_MODEL.md`
+- [ ] D16 `AI_USAGE.md`
+- [ ] D17 Cover image 1200×675 or larger
+- [ ] D18 Video, 3 minutes or less
+- [ ] D19 X posts with #BuildBeforeQDay
+- [ ] D20 Make the repository public
+- [ ] D21 Project page: every `qor1` address, Check again, category Encrypted Apps, country Indonesia; all members registered; fest Discord post
+- [ ] D22 Turn off app sleeping on Railway before judging
+
 ## 3. Gate status
 
 Write the result and the evidence for each gate. TECH_SPEC section 14 defines the tests.
