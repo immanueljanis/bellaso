@@ -135,8 +135,15 @@ export function ReceiveClient() {
                     role="tab"
                     aria-selected={method === item.value}
                     aria-controls="method-panel"
+                    tabIndex={method === item.value ? 0 : -1}
                     className={styles.tab}
                     onClick={() => setMethod(item.value)}
+                    onKeyDown={(event) => {
+                      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+                      const other = item.value === "link" ? "stealth" : "link";
+                      setMethod(other);
+                      document.getElementById(`tab-${other}`)?.focus();
+                    }}
                   >
                     {item.title}
                   </button>
