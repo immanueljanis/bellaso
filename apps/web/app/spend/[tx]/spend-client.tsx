@@ -232,7 +232,7 @@ export function SpendClient({ txHash }: { txHash: string }) {
 
                   {!result && (
                     <button type="button" className={ui.primary} onClick={spend} disabled={!account || !validTarget || busy || (links && !linkAccepted)}>
-                      {busy ? "Spending…" : "Spend with two signatures"}
+                      {busy ? "Sending…" : `Send ${shown?.main ? formatCoin(shown.main) : "the funds"}`}
                     </button>
                   )}
 

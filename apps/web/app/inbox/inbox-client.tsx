@@ -71,7 +71,7 @@ export function InboxClient() {
     .map(formatCoin)
     .join(" + ");
   const headline = !scan || scan.running
-    ? "Opening announcements with your key"
+    ? "Looking for your payments"
     : payments.length === 0
       ? "No payments yet"
       : `${payments.length} ${payments.length === 1 ? "payment" : "payments"} found: ${byLink} by link, ${byStealth} by stealth address`;

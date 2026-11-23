@@ -29,14 +29,14 @@ const STEPS = [
     doneMeta: "Funded",
   },
   {
-    title: "Register your signing key",
-    body: "ML-DSA-87, with a proof that you hold the secret half. From now on, each transaction of this account needs two signatures.",
+    title: "Add your quantum-safe signing key",
+    body: "After this step, each transaction of this account needs two signatures. A quantum computer cannot forge the second one (ML-DSA-87).",
     progress: "Proving possession of the key. Waiting for the next block.",
     doneMeta: "Registered",
   },
   {
     title: "Publish your encryption key",
-    body: "ML-KEM-1024, into the QoreSeal registry. Payers seal their secret to this key.",
+    body: "Payers use this key to make a new address for each payment. Only you can find that address (ML-KEM-1024, in the QoreSeal registry).",
     progress: "Signed with two signatures. Waiting for the next block.",
     doneMeta: "Published",
   },
@@ -371,7 +371,7 @@ export function CreateClient() {
                                   ? `Use ${MIN_PASSPHRASE} characters or more.`
                                   : repeat.length > 0 && passphrase !== repeat
                                     ? "The two passphrases are different."
-                                    : "It encrypts the phrase in this browser. It never leaves this device."}
+                                    : "The passphrase unlocks Bellaso in this browser. It is not your 24 words, and it never leaves this device."}
                               </p>
                               {!restoring && (
                                 <label className={ui.check}>
