@@ -56,11 +56,27 @@
 }
 
 .noWallet {
-  margin-top: 24px;
+  margin-bottom: 28px;
   padding: 18px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 22px;
+  align-items: center;
   border: 1px solid oklch(0.8 0.12 62 / 0.45);
   background: var(--orange-tint);
   border-radius: 2px;
+}
+
+.qr {
+  flex: none;
+  width: 132px;
+  height: 132px;
+  border-radius: 2px;
+}
+
+.noWalletText {
+  flex: 1 1 220px;
+  min-width: 0;
 }
 
 .noWalletTitle {

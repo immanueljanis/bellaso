@@ -2,13 +2,13 @@
 
 import type { Coin } from "@bellaso/chain";
 import { stealthAddress } from "@bellaso/core";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { encode } from "uqr";
+import { useEffect, useRef, useState } from "react";
 import { formatCoin } from "@/src/amount";
 import { deriveRecipient } from "@/src/chain-client";
 import { paymentLink } from "@/src/link";
 import { type GatewayTransfer, fetchTransfers } from "@/src/inbox";
 import { type StealthEntry, updateVault } from "@/src/vault";
+import { QrCode } from "../qr-code";
 import { SiteHeader } from "../site-header";
 import ui from "../ui.module.css";
 import { VaultGate, useVault } from "../vault-gate";
@@ -22,18 +22,6 @@ const METHODS: { value: Method; title: string; body: string }[] = [
 ];
 
 const short = (address: string) => `${address.slice(0, 10)}…${address.slice(-7)}`;
-
-/** A QR code of `text` as SVG squares in the board colors. */
-function QrCode({ text }: { text: string }) {
-  const { data, size } = useMemo(() => encode(text, { border: 2 }), [text]);
-  const cells = data.flatMap((row, y) => row.flatMap((dark, x) => (dark ? [`M${x} ${y}h1v1h-1z`] : []))).join("");
-  return (
-    <svg className={styles.qr} viewBox={`0 0 ${size} ${size}`} role="img" aria-label={`QR code of ${text}`} shapeRendering="crispEdges">
-      <rect width={size} height={size} fill="var(--chalk)" />
-      <path d={cells} fill="var(--board)" />
-    </svg>
-  );
-}
 
 /** What a payer needs to pay a stealth address from any wallet. */
 const payerNote = (entry: StealthEntry) =>
@@ -232,7 +220,7 @@ export function ReceiveClient() {
                 <div id="made" ref={madeRef} className={styles.made} aria-live="polite">
                   <p className={styles.madeTitle}>Send this to {made.label}</p>
                   <div className={styles.madeBody}>
-                    <QrCode text={made.address} />
+                    <QrCode text={made.address} label={`QR code of ${made.address}`} className={styles.qr} />
                     <div className={styles.madeText}>
                       <p className={styles.address}>{made.address}</p>
                       <div className={styles.madeActions}>

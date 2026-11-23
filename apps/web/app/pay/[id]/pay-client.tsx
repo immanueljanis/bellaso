@@ -7,6 +7,7 @@ import { type RecipientPublicData, loadRecipient, txUrl } from "@/src/gateway";
 import { fingerprintFromHash, kemFingerprint } from "@/src/link";
 import { type PaymentPlan, GAS_ALLOWANCE_UQOR, PAYMENT_GAS_LIMIT, QOREX_PAYMENT_FEE_QOR, planPayment } from "@/src/payment";
 import { type QorexSignAndBroadcastResult, connectQorex, explainQorexError, qorexNative } from "@/src/qorex";
+import { QrCode } from "../../qr-code";
 import { SiteHeader } from "../../site-header";
 import ui from "../../ui.module.css";
 import styles from "./pay.module.css";
@@ -35,9 +36,11 @@ export function PayClient({ recipient }: { recipient: string }) {
   const [error, setError] = useState<string | null>(null);
   const [hasQorex, setHasQorex] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [href, setHref] = useState("");
 
   useEffect(() => {
     setHasQorex(qorexNative() !== null);
+    setHref(window.location.href);
     loadRecipient(recipient)
       .then(async (data) => {
         const expected = fingerprintFromHash(window.location.hash);
@@ -106,6 +109,23 @@ export function PayClient({ recipient }: { recipient: string }) {
           <p className={ui.meta}>To {short(recipient)}</p>
 
           <div className={ui.card}>
+            {stage === "ready" && !hasQorex && (
+              <div className={styles.noWallet}>
+                {href && <QrCode text={href} label="QR code of this payment link" className={styles.qr} />}
+                <div className={styles.noWalletText}>
+                  <p className={styles.noWalletTitle}>This browser has no QoreX wallet. Pay from your phone.</p>
+                  <ol className={styles.noWalletSteps}>
+                    <li>Scan the code with your phone to get this link.</li>
+                    <li>In the QoreX app, turn on Settings › Use testnet (developers).</li>
+                    <li>Open the link in the QoreX browser and pay there.</li>
+                  </ol>
+                  <button type="button" className={ui.secondary} onClick={copyLink}>
+                    {copied ? "Link copied" : "Copy this link"}
+                  </button>
+                </div>
+              </div>
+            )}
+
             <label htmlFor="amount" className={ui.label}>
               Amount
             </label>
@@ -164,20 +184,6 @@ export function PayClient({ recipient }: { recipient: string }) {
                   {payer ? `Connected as ${short(payer)}. ` : "QoreX asks you to connect, then to sign. "}You sign one transaction.
                 </p>
               </>
-            )}
-
-            {stage === "ready" && !hasQorex && (
-              <div className={styles.noWallet}>
-                <p className={styles.noWalletTitle}>Open this link in the QoreX app to pay</p>
-                <ol className={styles.noWalletSteps}>
-                  <li>Open QoreX on your phone.</li>
-                  <li>Turn on Settings › Use testnet (developers).</li>
-                  <li>Open this link in the QoreX browser.</li>
-                </ol>
-                <button type="button" className={ui.secondary} onClick={copyLink}>
-                  {copied ? "Link copied" : "Copy this link"}
-                </button>
-              </div>
             )}
 
             {steps.length > 0 && (
