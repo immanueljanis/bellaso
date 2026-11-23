@@ -330,7 +330,7 @@ The scan never asks for the balance of a single stealth address. The spend scree
 |---|---|---|
 | `GET /v1/health` | Answers `{ "ok": true }` | None |
 | `GET /v1/lcd/*` | REST read | Allowed path prefixes: `/cosmos/auth/v1beta1/accounts/`, `/cosmos/bank/v1beta1/balances/`, `/qorechain/pqc/v1/`, `/cosmwasm/wasm/v1/contract/`, `/cosmos/tx/v1beta1/txs/`, `/cosmos/upgrade/v1beta1/applied_plan/`. The SDK `ensurePqcRegistered` reads the last one to select the sign bytes of the proof of possession (found in gate G8). Other paths, `..` segments and unusual characters get 403. |
-| `POST /v1/rpc` | CometBFT JSON-RPC. The SDK reads accounts, simulates, broadcasts and waits through it. | Allowed methods: `status`, `abci_info`, `abci_query`, `broadcast_tx_sync`, `tx`, `block`. No `tx_search`: it is the most expensive query, and the browser reads the gateway feeds instead. One call or a batch of 10 calls or fewer. Other methods get 403. |
+| `POST /v1/rpc` | CometBFT JSON-RPC. The SDK reads accounts, simulates, broadcasts and waits through it. | Allowed methods: `status`, `abci_info`, `abci_query` (routes `/cosmos.auth.v1beta1.Query/Account` and `/cosmos.tx.v1beta1.Service/Simulate` only), `broadcast_tx_sync`, `tx`, `tx_search` (query `tx.hash='<hash>'` only, which CosmJS `getTx` needs), `block`. One call or a batch of 10 or fewer. The routes were MEASURED through a logging gateway on 23 Nov 2026. |
 | `GET /v1/announcements?after=<height>&limit=<n>` | All valid announcements above a height, in height order | `limit` is 500 or less. A larger `limit` is cut to 500, not refused. There is no other parameter. |
 | `GET /v1/transfers?after=<height>&limit=<n>` | All bank transfers of the four test denoms above a height | `limit` is 1,000 or less. A larger `limit` is cut to 1,000, not refused. There is no address parameter. |
 | `POST /v1/sponsor` | Body `{ "address": "qor1..." }`. Sends the sponsor amount to a new account A | Section 9.5 |
@@ -415,7 +415,7 @@ Storage: memory only. A restart or a wake from sleep rebuilds both indexes from 
 
 **State.** All limits are in memory. A restart resets the IP limits, the daily total and the list of funded addresses. The chain checks still stop a second sponsorship of one address. After a setup sponsorship, the account exists on chain. A stealth address keeps 0.12 QOR until its first spend, and after the spend it has a public key.
 
-**Client IP address.** The rate limit and the sponsor limits count each client by the header `CLIENT_IP_HEADER` (default `x-real-ip`). The Railway edge sets `X-Real-IP` and replaces any copy that the client sends (Railway staff answers). Its hop count in `X-Forwarded-For` is not fixed: MEASURED on 23 Nov 2026, a trust of 1 hop split one client over several rate-limit buckets. Without the header, the socket address counts. MEASURED on 23 Nov 2026 through a temporary echo route: the edge replaced a forged `X-Real-IP` and a forged `X-Forwarded-For` with the real client IP; `X-Forwarded-For` arrives as "client, edge node". A burst of 300 requests in one minute from one network gave 240 answers 200 and 60 answers 429 (the network has two public IPv4 addresses, 120 each). If a client could reach the gateway without the Railway edge, it could forge the header (THREAT_MODEL R19).
+**Client IP address.** The rate limit and the sponsor limits count each client by the header `CLIENT_IP_HEADER` (default empty, which means the socket address; Railway sets `x-real-ip`). An IPv6 address counts by its /64 prefix. The Railway edge sets `X-Real-IP` and replaces any copy that the client sends (Railway staff answers). Its hop count in `X-Forwarded-For` is not fixed: MEASURED on 23 Nov 2026, a trust of 1 hop split one client over several rate-limit buckets. Without the header, the socket address counts. MEASURED on 23 Nov 2026 through a temporary echo route: the edge replaced a forged `X-Real-IP` and a forged `X-Forwarded-For` with the real client IP; `X-Forwarded-For` arrives as "client, edge node". A burst of 300 requests in one minute from one network gave 240 answers 200 and 60 answers 429 (the network has two public IPv4 addresses, 120 each). If a client could reach the gateway without the Railway edge, it could forge the header (THREAT_MODEL R19).
 
 **Sends.** One queue runs every send, one at a time. Thus two sends never use the same account sequence. The gateway answers 200 only when the chain accepts the send.
 
@@ -451,7 +451,7 @@ A chain observer sees a transfer from the sponsor wallet to the address. This sh
 | `SPONSOR_AMOUNT_UQOR` | `120000` |
 | `SPONSOR_DAILY_CAP` | `50` |
 | `TRANSFERS_FROM_HEIGHT` | `10600000`. The transfer index serves no older transfer. |
-| `CLIENT_IP_HEADER` | `x-real-ip` (set by the Railway edge). Empty: the socket address. |
+| `CLIENT_IP_HEADER` | Empty by default (the socket address). Railway: `x-real-ip`, which its edge sets. |
 
 The web app reads the gateway URL from `NEXT_PUBLIC_GATEWAY_URL`.
 
@@ -471,6 +471,7 @@ Gate G8 later proved that the SDK signs and broadcasts from a browser through th
 `apps/web/src/vault.ts` keeps the vault.
 
 - Storage: the browser `localStorage`, key `bellaso.vault.v1`. The stored value is `{ v: 1, salt, iv, data }`, with each part in base64.
+- Passphrase: 12 characters or more (ASVS 2.1.1).
 - Encryption: AES-256-GCM with WebCrypto. The key comes from the user passphrase with PBKDF2-SHA-256, 600,000 iterations and a 16-byte random salt. Each save uses a new 12-byte IV. The passphrase has 10 characters or more.
 - Content: the recovery phrase, the address of A, the payments that the inbox found and the stealth address entries `{ index, address, label, createdAt, askGas }`. All of it is encrypted, because the payment list and the labels link payments to A.
 - The vault keeps no scanned height (section 8.1).
@@ -491,7 +492,7 @@ bellaso/
     web/                    Next.js App Router, client components only (Vercel)
       app/page.tsx          landing page
       app/create/           recipient setup and restore (7.1)
-      app/pay/[id]/         payer flow (7.2); id = qor1 address
+      app/pay/[id]/         payer flow (7.2); id = qor1 address; fragment #k= = first 16 bytes of SHA-256 of the KEM key
       app/inbox/            scan and list (8)
       app/spend/[tx]/       spend (7.3, 7.4)
       app/receive/          get paid: payment link (method 1) and stealth addresses (4.6)
