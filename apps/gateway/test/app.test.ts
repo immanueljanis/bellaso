@@ -2,14 +2,7 @@ import { expect, test } from "bun:test";
 import { buildApp } from "../src/app";
 import { readConfig } from "../src/config";
 import { isAllowedRestRead, isAllowedRpcBody } from "../src/proxy";
-
-const config = {
-  port: 0,
-  allowedOrigins: ["http://localhost:3000"],
-  chainRest: "https://rest.example",
-  chainRpc: "https://rpc.example",
-  announcementContract: "qor1contract",
-};
+import { config } from "./fixtures";
 
 /** A fetch double that records the URLs it is asked for and answers with JSON. */
 function fakeFetch(calls: string[]): typeof fetch {
@@ -65,6 +58,19 @@ test("readConfig refuses a bad port and splits the origins", () => {
     "https://b.example",
   ]);
   expect(readConfig({ CHAIN_REST: "https://rest.example/" }).chainRest).toBe("https://rest.example");
+});
+
+test("readConfig gives the sponsor and transfer defaults and refuses bad numbers", () => {
+  const defaults = readConfig({});
+  expect(defaults.sponsorMnemonic).toBeUndefined();
+  expect(defaults.sponsorAmountUqor).toBe(100_000);
+  expect(defaults.sponsorDailyCap).toBe(50);
+  expect(defaults.transfersFromHeight).toBe(10_600_000);
+  expect(defaults.trustProxyHops).toBe(1);
+  expect(readConfig({ SPONSOR_MNEMONIC: "  " }).sponsorMnemonic).toBeUndefined();
+  expect(() => readConfig({ TRUST_PROXY_HOPS: "-1" })).toThrow("TRUST_PROXY_HOPS must be an integer");
+  expect(() => readConfig({ SPONSOR_AMOUNT_UQOR: "0" })).toThrow("SPONSOR_AMOUNT_UQOR must be an integer");
+  expect(() => readConfig({ TRANSFERS_FROM_HEIGHT: "1.5" })).toThrow("TRANSFERS_FROM_HEIGHT must be an integer");
 });
 
 test("the RPC proxy passes allowed methods and refuses others", async () => {
