@@ -104,7 +104,7 @@
   height: 52px;
   padding: 0 28px;
   border-radius: 4px;
-  background: var(--blue-chalk);
+  background: var(--chalk);
   color: var(--on-chalk);
   font-weight: 600;
   text-decoration: none;
@@ -112,9 +112,9 @@
 }
 
 .cta:hover {
-  background: var(--blue-chalk-hover);
+  background: var(--chalk-hover);
   color: var(--on-chalk);
-  box-shadow: 0 0 0 1px var(--board), 0 0 0 2px var(--blue-chalk-hover);
+  box-shadow: 0 0 0 1px var(--board), 0 0 0 2px var(--chalk-hover);
 }
 
 .textLink {
@@ -169,6 +169,7 @@
 
 .mine {
   position: absolute;
+  z-index: 1;
   width: 0;
   height: 0;
 }
@@ -195,8 +196,11 @@
 
 .foundLabel {
   position: absolute;
-  left: 22px;
-  top: -11px;
+  left: 20px;
+  top: -12px;
+  padding: 1px 6px;
+  border-radius: 2px;
+  background: var(--board);
   white-space: nowrap;
   font-family: var(--font-mono), monospace;
   font-size: 12px;
@@ -216,17 +220,7 @@
   bottom: 0;
   left: 0;
   width: 1px;
-  background: var(--blue-chalk);
-}
-
-.scan::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: -90px;
-  width: 90px;
-  background: linear-gradient(90deg, oklch(0.8 0.085 235 / 0), oklch(0.8 0.085 235 / 0.07));
+  background: oklch(0.94 0.008 95 / 0.45);
 }
 
 .facts {
@@ -737,8 +731,8 @@
     background-color: oklch(0.8 0.12 62 / 0.55);
   }
   3% {
-    transform: scale(2.3);
-    background-color: oklch(0.94 0.008 95);
+    transform: scale(1.6);
+    background-color: oklch(0.94 0.008 95 / 0.85);
   }
   11%,
   100% {
