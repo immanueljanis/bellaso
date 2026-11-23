@@ -74,13 +74,6 @@ export async function buildApp(config: GatewayConfig, deps: GatewayDeps = { fetc
 
   app.get("/v1/health", async () => ({ ok: true }));
 
-  app.get("/v1/whoami", async (request) => ({
-    socket: request.ip,
-    realIp: request.headers["x-real-ip"] ?? null,
-    forwardedFor: request.headers["x-forwarded-for"] ?? null,
-    key: clientIp(request),
-  }));
-
   app.get("/v1/lcd/*", async (request, reply) => {
     const url = new URL(request.url, "http://gateway");
     const path = url.pathname.startsWith("/v1/lcd/") ? url.pathname.slice("/v1/lcd".length) : "";
