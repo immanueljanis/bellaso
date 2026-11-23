@@ -533,7 +533,12 @@ It is a demonstration, not a proof. The proof is in THREAT_MODEL section 3.1.
 ## 13. Deployment
 
 - **Web app:** Vercel. Client components only. Set `NEXT_PUBLIC_GATEWAY_URL`.
-- **Gateway:** Railway (team decision, 23 Nov 2026). One always-on instance with a persistent volume for SQLite. Start command: `bun apps/gateway/src/server.ts`. Health check: `/v1/health`. Use the default subdomain of the host. The team does not buy a domain.
+- **Gateway:** Railway (team decision, 23 Nov 2026). Project `bellaso`, service `gateway`, connected to the GitHub repository (branch `main`). A push that changes a watched path deploys it. URL: `https://gateway-production-4e82893b.up.railway.app`.
+  - Build: `apps/gateway/Dockerfile` (`oven/bun:1.3.3-slim`, installs only the gateway dependencies). The image runs the TypeScript source.
+  - Service settings, kept on the Railway service (not in a file, because Config as Code files stop working on 1 Dec 2026, and the IaC file format does not document a Dockerfile path or sleeping): `dockerfilePath` `apps/gateway/Dockerfile`, `healthcheckPath` `/v1/health`, `healthcheckTimeout` 60, `restartPolicyType` `ON_FAILURE` with 3 retries, `watchPatterns` `apps/gateway/**`, `packages/**`, `bun.lock`, one replica in `asia-southeast1-eqsg3a`, `sleepApplication` true.
+  - Variables: `ALLOWED_ORIGINS`. Railway sets `PORT`.
+  - Cost: app sleeping is on until the indexer exists. Turn it off before judging (PLAN, day 7), so the first request of a juror does not wait for a cold start. Add a persistent volume for SQLite with the indexer (day 4).
+  - Use the default subdomain of the host. The team does not buy a domain.
 - **Self-hosting:** the README shows how to run the gateway locally with `bun run gateway` and an `.env` file.
 - The README lists these testnet addresses: the announcement contract, the sponsor wallet, the demo recipient account A, the demo payer and two demo one-time accounts. It also lists the gateway URL.
 - The project does not use mainnet.
