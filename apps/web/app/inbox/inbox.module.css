@@ -12,6 +12,7 @@
 }
 
 .figure {
+  flex: none;
   margin-top: 64px;
 }
 
