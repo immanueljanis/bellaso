@@ -7,7 +7,6 @@ export const REST_READ_PREFIXES = [
   "/cosmos/auth/v1beta1/accounts/",
   "/cosmos/bank/v1beta1/balances/",
   "/qorechain/pqc/v1/",
-  "/cosmwasm/wasm/v1/contract/",
   "/cosmos/tx/v1beta1/txs/",
   "/cosmos/upgrade/v1beta1/applied_plan/",
 ] as const;
@@ -26,12 +25,39 @@ interface RpcCall {
   params?: { query?: unknown };
 }
 
-/** True when one JSON-RPC call uses an allowed method, and a `tx_search` asks for one hash only. */
+/**
+ * The gRPC query routes the SDK reaches through `abci_query` to sign, simulate and wait
+ * (MEASURED on 23 Nov 2026 through a logging gateway). Any other route is refused, so
+ * `abci_query` cannot run list or search queries.
+ */
+export const ABCI_PATHS = new Set(["/cosmos.auth.v1beta1.Query/Account", "/cosmos.tx.v1beta1.Service/Simulate"]);
+
+/** True when one JSON-RPC call uses an allowed method; `tx_search` asks for one hash only, and `abci_query` uses an allowed route. */
 function isAllowedCall(call: unknown): boolean {
   if (typeof call !== "object" || call === null) return false;
-  const { method, params } = call as RpcCall;
+  const { method, params } = call as RpcCall & { params?: { path?: unknown } };
   if (typeof method !== "string" || !RPC_METHODS.has(method)) return false;
-  return method !== "tx_search" || (typeof params?.query === "string" && TX_BY_HASH.test(params.query));
+  if (method === "tx_search") return typeof params?.query === "string" && TX_BY_HASH.test(params.query);
+  if (method === "abci_query") return typeof params?.path === "string" && ABCI_PATHS.has(params.path);
+  return true;
+}
+
+/**
+ * The rate-limit key of a client IP address: IPv4 as it is, IPv6 by its /64 prefix, because
+ * one host can rotate through a whole /64. An IPv4 address mapped into IPv6 counts as IPv4.
+ */
+export function ipKey(ip: string): string {
+  const mapped = /^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/i.exec(ip);
+  if (mapped) return mapped[1]!;
+  if (!ip.includes(":")) return ip;
+  const [head = "", tail = ""] = ip.toLowerCase().split("::");
+  const left = head ? head.split(":") : [];
+  const right = tail ? tail.split(":") : [];
+  const groups = ip.includes("::") ? [...left, ...Array<string>(Math.max(0, 8 - left.length - right.length)).fill("0"), ...right] : left;
+  return `${groups
+    .slice(0, 4)
+    .map((group) => group.replace(/^0+(?=.)/, ""))
+    .join(":")}::/64`;
 }
 
 /** True when a JSON-RPC body (one call or a batch of 10 or fewer) uses only allowed calls. */

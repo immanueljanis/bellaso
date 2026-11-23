@@ -45,6 +45,6 @@ export function readConfig(env: Record<string, string | undefined> = process.env
     sponsorAmountUqor: integer(env, "SPONSOR_AMOUNT_UQOR", 120_000, 1),
     sponsorDailyCap: integer(env, "SPONSOR_DAILY_CAP", 50, 0),
     transfersFromHeight: integer(env, "TRANSFERS_FROM_HEIGHT", 10_600_000, 0),
-    clientIpHeader: (env.CLIENT_IP_HEADER ?? "x-real-ip").trim().toLowerCase(),
+    clientIpHeader: (env.CLIENT_IP_HEADER ?? "").trim().toLowerCase(),
   };
 }

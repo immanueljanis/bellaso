@@ -4,7 +4,7 @@ import rateLimit from "@fastify/rate-limit";
 import Fastify, { type FastifyRequest } from "fastify";
 import type { GatewayConfig } from "./config";
 import { AnnouncementIndex, type SearchPage, TransferIndex } from "./indexer";
-import { isAllowedRestRead, isAllowedRpcBody } from "./proxy";
+import { ipKey, isAllowedRestRead, isAllowedRpcBody } from "./proxy";
 import { REFUSALS, type SendUqor, Sponsor, sponsorWallet } from "./sponsor";
 
 export interface GatewayDeps {
@@ -16,6 +16,15 @@ export interface GatewayDeps {
 }
 
 const MAX_BODY = 64 * 1024;
+const MAX_UPSTREAM = 2 * 1024 * 1024;
+
+/** The body of an upstream answer, refused above 2 MB, so one answer cannot fill the gateway memory. */
+async function cappedText(response: Response): Promise<string> {
+  if (Number(response.headers.get("content-length") ?? 0) > MAX_UPSTREAM) throw new Error("upstream answer too large");
+  const text = await response.text();
+  if (text.length > MAX_UPSTREAM) throw new Error("upstream answer too large");
+  return text;
+}
 const MAX_ANNOUNCEMENTS = 500;
 const MAX_TRANSFERS = 1000;
 
@@ -66,7 +75,7 @@ export async function buildApp(config: GatewayConfig, deps: GatewayDeps = { fetc
   await app.register(cors, { origin: config.allowedOrigins });
   const clientIp = (request: FastifyRequest): string => {
     const value = config.clientIpHeader ? request.headers[config.clientIpHeader] : undefined;
-    return (Array.isArray(value) ? value[0] : value)?.trim() || request.ip;
+    return ipKey((Array.isArray(value) ? value[0] : value)?.trim() || request.ip);
   };
   await app.register(rateLimit, { max: 120, timeWindow: "1 minute", keyGenerator: clientIp });
 
@@ -91,9 +100,10 @@ export async function buildApp(config: GatewayConfig, deps: GatewayDeps = { fetc
     if (!isAllowedRestRead(path)) return reply.code(403).send({ error: "This path is not allowed" });
     const upstream = await deps.fetch(`${config.chainRest}${path}`, {
       headers: { accept: "application/json" },
+      redirect: "error",
       signal: AbortSignal.timeout(15_000),
     });
-    return reply.code(upstream.status).type("application/json").send(await upstream.text());
+    return reply.code(upstream.status).type("application/json").send(await cappedText(upstream));
   });
 
   app.post("/v1/rpc", async (request, reply) => {
@@ -102,9 +112,10 @@ export async function buildApp(config: GatewayConfig, deps: GatewayDeps = { fetc
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(request.body),
+      redirect: "error",
       signal: AbortSignal.timeout(30_000),
     });
-    return reply.code(upstream.status).type("application/json").send(await upstream.text());
+    return reply.code(upstream.status).type("application/json").send(await cappedText(upstream));
   });
 
   app.get<{ Querystring: { after?: string; limit?: string } }>("/v1/announcements", async (request, reply) => {

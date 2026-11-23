@@ -100,7 +100,7 @@ export async function searchTxs(
 ): Promise<{ total: number; txs: SearchedTxWithEvents[] }> {
   const filter = minHeight > 0 ? `${query} AND tx.height>=${minHeight}` : query;
   const url = `${rpcUrl}/tx_search?query=${encodeURIComponent(`"${filter}"`)}&page=${page}&per_page=${perPage}&order_by=%22asc%22`;
-  const response = await fetch(url);
+  const response = await fetch(url, { redirect: "error", signal: AbortSignal.timeout(20_000) });
   if (!response.ok) throw new Error(`tx_search answered ${response.status}`);
   const { result } = (await response.json()) as {
     result: { total_count: string; txs: { hash: string; height: string; tx: string; tx_result?: { events?: TxEvent[] } }[] };

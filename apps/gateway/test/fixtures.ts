@@ -8,13 +8,14 @@ import { type GatewayConfig, readConfig } from "../src/config";
 export const CONTRACT = "qor1contract";
 const utf8 = new TextEncoder();
 
-/** The default configuration with fake chain endpoints and no sponsor wallet. */
+/** The default configuration with fake chain endpoints, no sponsor wallet, and the Railway client IP header. */
 export const config: GatewayConfig = {
   ...readConfig({}),
   port: 0,
   chainRest: "https://rest.example",
   chainRpc: "https://rpc.example",
   announcementContract: CONTRACT,
+  clientIpHeader: "x-real-ip",
 };
 
 /** A bank MsgSend from the test payer. */

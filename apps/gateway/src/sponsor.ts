@@ -135,6 +135,7 @@ export class Sponsor {
   private read(path: string): Promise<Response> {
     return this.options.fetch(`${this.options.chainRest}${path}`, {
       headers: { accept: "application/json" },
+      redirect: "error",
       signal: AbortSignal.timeout(15_000),
     });
   }

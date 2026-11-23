@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { buildApp } from "../src/app";
 import { readConfig } from "../src/config";
-import { isAllowedRestRead, isAllowedRpcBody } from "../src/proxy";
+import { ipKey, isAllowedRestRead, isAllowedRpcBody } from "../src/proxy";
 import { config } from "./fixtures";
 
 /** A fetch double that records the URLs it is asked for and answers with JSON. */
@@ -67,8 +67,8 @@ test("readConfig gives the sponsor and transfer defaults and refuses bad numbers
   expect(defaults.sponsorAmountUqor).toBe(120_000);
   expect(defaults.sponsorDailyCap).toBe(50);
   expect(defaults.transfersFromHeight).toBe(10_600_000);
-  expect(defaults.clientIpHeader).toBe("x-real-ip");
-  expect(readConfig({ CLIENT_IP_HEADER: "" }).clientIpHeader).toBe("");
+  expect(defaults.clientIpHeader).toBe("");
+  expect(readConfig({ CLIENT_IP_HEADER: " X-Real-IP " }).clientIpHeader).toBe("x-real-ip");
   expect(readConfig({ SPONSOR_MNEMONIC: "  " }).sponsorMnemonic).toBeUndefined();
   expect(() => readConfig({ SPONSOR_AMOUNT_UQOR: "0" })).toThrow("SPONSOR_AMOUNT_UQOR must be an integer");
   expect(() => readConfig({ TRANSFERS_FROM_HEIGHT: "1.5" })).toThrow("TRANSFERS_FROM_HEIGHT must be an integer");
@@ -87,7 +87,7 @@ test("the RPC proxy passes allowed methods and refuses others", async () => {
 });
 
 test("isAllowedRpcBody accepts small batches of allowed methods only", () => {
-  expect(isAllowedRpcBody({ method: "abci_query" })).toBe(true);
+  expect(isAllowedRpcBody({ method: "abci_query", params: { path: "/cosmos.auth.v1beta1.Query/Account" } })).toBe(true);
   expect(isAllowedRpcBody([{ method: "status" }, { method: "tx" }])).toBe(true);
   expect(isAllowedRpcBody([{ method: "status" }, { method: "dial_peers" }])).toBe(false);
   expect(isAllowedRpcBody(Array.from({ length: 11 }, () => ({ method: "status" })))).toBe(false);
@@ -137,5 +137,31 @@ test("every answer carries the security headers, and a failure hides its cause",
   expect(failed.statusCode).toBe(502);
   expect(failed.body).not.toContain("ECONNREFUSED");
   expect(failed.json()).toEqual({ error: "The chain did not answer. Try again in a minute." });
+  await app.close();
+});
+
+test("abci_query passes only for the routes the SDK uses", () => {
+  expect(isAllowedRpcBody({ method: "abci_query", params: { path: "/cosmos.auth.v1beta1.Query/Account", data: "0a" } })).toBe(true);
+  expect(isAllowedRpcBody({ method: "abci_query", params: { path: "/cosmos.tx.v1beta1.Service/Simulate", data: "0a" } })).toBe(true);
+  expect(isAllowedRpcBody({ method: "abci_query", params: { path: "/cosmos.tx.v1beta1.Service/GetTxsEvent" } })).toBe(false);
+  expect(isAllowedRpcBody({ method: "abci_query", params: { path: "/store/bank/subspace" } })).toBe(false);
+  expect(isAllowedRpcBody({ method: "abci_query" })).toBe(false);
+});
+
+test("ipKey keeps IPv4, maps IPv4-in-IPv6 back, and groups IPv6 by /64", () => {
+  expect(ipKey("203.0.113.7")).toBe("203.0.113.7");
+  expect(ipKey("::ffff:203.0.113.7")).toBe("203.0.113.7");
+  expect(ipKey("2001:db8:abcd:12:1:2:3:4")).toBe("2001:db8:abcd:12::/64");
+  expect(ipKey("2001:0db8:abcd:0012:ffff::1")).toBe("2001:db8:abcd:12::/64");
+  expect(ipKey("2001:db8::1")).toBe("2001:db8:0:0::/64");
+});
+
+test("the REST relay refuses the unused contract prefix and an oversized upstream answer", async () => {
+  const contract = await (await buildApp(config, { fetch: fakeFetch([]) })).inject({ method: "GET", url: "/v1/lcd/cosmwasm/wasm/v1/contract/qor1abc/smart/eyJ9" });
+  expect(contract.statusCode).toBe(403);
+  const huge = (async () => new Response("x", { status: 200, headers: { "content-length": String(3 * 1024 * 1024) } })) as unknown as typeof fetch;
+  const app = await buildApp(config, { fetch: huge });
+  const big = await app.inject({ method: "GET", url: "/v1/lcd/qorechain/pqc/v1/kem/qor1abc" });
+  expect(big.statusCode).toBe(502);
   await app.close();
 });
