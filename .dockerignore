@@ -1,0 +1,10 @@
+**/node_modules
+**/.next
+**/*.tsbuildinfo
+.git
+.env
+.env.*
+data
+docs
+apps/web/app
+*.md
