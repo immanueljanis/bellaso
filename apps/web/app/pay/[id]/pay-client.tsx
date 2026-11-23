@@ -2,9 +2,9 @@
 
 import { TESTNET } from "@bellaso/chain";
 import { useEffect, useState } from "react";
-import { toBaseUnits } from "@/src/amount";
+import { PAYMENT_TOKENS, toBaseUnits } from "@/src/amount";
 import { type RecipientPublicData, loadRecipient, txUrl } from "@/src/gateway";
-import { fingerprintFromHash, kemFingerprint } from "@/src/link";
+import { fingerprintFromHash, kemFingerprint, requestFromHash, withRequest } from "@/src/link";
 import { type PaymentPlan, GAS_ALLOWANCE_UQOR, PAYMENT_GAS_LIMIT, QOREX_PAYMENT_FEE_QOR, planPayment } from "@/src/payment";
 import { type QorexSignAndBroadcastResult, connectQorex, explainQorexError, qorexNative } from "@/src/qorex";
 import { QrCode } from "../../qr-code";
@@ -12,11 +12,7 @@ import { SiteHeader } from "../../site-header";
 import ui from "../../ui.module.css";
 import styles from "./pay.module.css";
 
-const TOKENS = [
-  { symbol: "fUSD", ...TESTNET.denoms.fUSD },
-  { symbol: "fETH", ...TESTNET.denoms.fETH },
-  { symbol: "fBTC", ...TESTNET.denoms.fBTC },
-] as const;
+const TOKENS = PAYMENT_TOKENS;
 
 type Stage = "loading" | "ready" | "signing" | "done" | "error";
 
@@ -37,10 +33,18 @@ export function PayClient({ recipient }: { recipient: string }) {
   const [hasQorex, setHasQorex] = useState(false);
   const [copied, setCopied] = useState(false);
   const [href, setHref] = useState("");
+  const [asked, setAsked] = useState(false);
 
   useEffect(() => {
     setHasQorex(qorexNative() !== null);
     setHref(window.location.href);
+    const request = requestFromHash(window.location.hash);
+    const known = TOKENS.find((item) => item.symbol === request?.symbol);
+    if (request && known) {
+      setAmountText(request.amount);
+      setSymbol(known.symbol);
+      setAsked(true);
+    }
     loadRecipient(recipient)
       .then(async (data) => {
         const expected = fingerprintFromHash(window.location.hash);
@@ -59,6 +63,7 @@ export function PayClient({ recipient }: { recipient: string }) {
   const token = TOKENS.find((t) => t.symbol === symbol)!;
   const amount = toBaseUnits(amountText, token.decimals);
   const shown = amount ? amountText.trim() : "0";
+  const phoneLink = href ? withRequest(href, amount ? { amount: amountText.trim(), symbol } : null) : "";
 
   async function pay() {
     const native = qorexNative();
@@ -81,7 +86,7 @@ export function PayClient({ recipient }: { recipient: string }) {
   }
 
   async function copyLink() {
-    await navigator.clipboard.writeText(window.location.href);
+    await navigator.clipboard.writeText(phoneLink);
     setCopied(true);
   }
 
@@ -111,7 +116,7 @@ export function PayClient({ recipient }: { recipient: string }) {
           <div className={ui.card}>
             {stage === "ready" && !hasQorex && (
               <div className={styles.noWallet}>
-                {href && <QrCode text={href} label="QR code of this payment link" className={styles.qr} />}
+                {phoneLink && <QrCode text={phoneLink} label="QR code of this payment link" className={styles.qr} />}
                 <div className={styles.noWalletText}>
                   <p className={styles.noWalletTitle}>This browser has no QoreX wallet. Pay from your phone.</p>
                   <ol className={styles.noWalletSteps}>
@@ -127,7 +132,7 @@ export function PayClient({ recipient }: { recipient: string }) {
             )}
 
             <label htmlFor="amount" className={ui.label}>
-              Amount
+              Amount{asked && <span className={styles.asked}> · the recipient asks for this amount</span>}
             </label>
             <div className={styles.amountRow}>
               <input

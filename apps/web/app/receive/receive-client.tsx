@@ -3,9 +3,9 @@
 import type { Coin } from "@bellaso/chain";
 import { stealthAddress } from "@bellaso/core";
 import { useEffect, useRef, useState } from "react";
-import { formatCoin } from "@/src/amount";
+import { PAYMENT_TOKENS, formatCoin, toBaseUnits } from "@/src/amount";
 import { deriveRecipient } from "@/src/chain-client";
-import { paymentLink } from "@/src/link";
+import { paymentLink, withRequest } from "@/src/link";
 import { type GatewayTransfer, fetchTransfers } from "@/src/inbox";
 import { type StealthEntry, updateVault } from "@/src/vault";
 import { QrCode } from "../qr-code";
@@ -45,6 +45,8 @@ export function ReceiveClient() {
   const [method, setMethod] = useState<Method>("link");
   const [label, setLabel] = useState("");
   const [askGas, setAskGas] = useState(false);
+  const [askText, setAskText] = useState("");
+  const [askSymbol, setAskSymbol] = useState<(typeof PAYMENT_TOKENS)[number]["symbol"]>("fUSD");
   const [made, setMade] = useState<StealthEntry | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [transfers, setTransfers] = useState<GatewayTransfer[] | null>(null);
@@ -74,6 +76,8 @@ export function ReceiveClient() {
     void deriveRecipient(vault.mnemonic).then((derived) => paymentLink(origin, vault.address, derived.kemPublicKey)).then(setLink);
   }, [vault, origin]);
   const current = METHODS.find((item) => item.value === method)!;
+  const askValid = toBaseUnits(askText, PAYMENT_TOKENS.find((token) => token.symbol === askSymbol)!.decimals) !== null;
+  const sharedLink = link ? withRequest(link, askValid ? { amount: askText.trim(), symbol: askSymbol } : null) : "";
 
   async function copy(text: string, what: string) {
     await navigator.clipboard.writeText(text);
@@ -160,11 +164,45 @@ export function ReceiveClient() {
                       Your payment link
                     </label>
                     <div className={styles.copyRow}>
-                      <input id="paylink" readOnly value={link} className={`${ui.input} ${styles.mono}`} />
-                      <button type="button" className={`${ui.primary} ${styles.copy}`} onClick={() => copy(link, "link")} disabled={!link}>
+                      <input id="paylink" readOnly value={sharedLink} className={`${ui.input} ${styles.mono}`} />
+                      <button type="button" className={`${ui.primary} ${styles.copy}`} onClick={() => copy(sharedLink, "link")} disabled={!link}>
                         {copied === "link" ? "Copied" : "Copy link"}
                       </button>
                     </div>
+                    <label htmlFor="ask" className={ui.label}>
+                      Ask for an amount <span className={styles.labelNote}>Optional. The payer can change it.</span>
+                    </label>
+                    <div className={styles.askRow}>
+                      <input
+                        id="ask"
+                        className={ui.input}
+                        inputMode="decimal"
+                        autoComplete="off"
+                        placeholder="150"
+                        value={askText}
+                        onChange={(event) => {
+                          setAskText(event.target.value);
+                          setCopied(null);
+                        }}
+                      />
+                      <label htmlFor="ask-token" className="sr-only">
+                        Token
+                      </label>
+                      <select
+                        id="ask-token"
+                        className={`${ui.input} ${styles.askToken}`}
+                        value={askSymbol}
+                        onChange={(event) => {
+                          setAskSymbol(event.target.value as typeof askSymbol);
+                          setCopied(null);
+                        }}
+                      >
+                        {PAYMENT_TOKENS.map((token) => (
+                          <option key={token.symbol}>{token.symbol}</option>
+                        ))}
+                      </select>
+                    </div>
+                    {askText.trim().length > 0 && !askValid && <p className={ui.hintLeft}>Use a number, for example 150 or 0.25.</p>}
                     <ul className={styles.notes}>
                       <li>Send it to clients, or put it in your invoice or bio. It never changes.</li>
                       <li>The payer needs the QoreX app with fUSD and about 0.6 QOR for fees.</li>

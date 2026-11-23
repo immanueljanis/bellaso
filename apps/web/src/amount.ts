@@ -10,6 +10,9 @@ export function toBaseUnits(text: string, decimals: number): bigint | null {
   return units > 0n ? units : null;
 }
 
+/** The test tokens that a payment link accepts, in the order of the token menu. */
+export const PAYMENT_TOKENS = (["fUSD", "fETH", "fBTC"] as const).map((symbol) => ({ symbol, ...TESTNET.denoms[symbol] }));
+
 const TOKENS = new Map<string, { symbol: string; decimals: number }>(Object.entries(TESTNET.denoms).map(([symbol, token]) => [token.denom, { symbol, decimals: token.decimals }]));
 
 /** "150.25 fUSD" for one coin of a known test denom, with the trailing zeros cut. Other denoms show the base units. */

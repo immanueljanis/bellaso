@@ -492,7 +492,7 @@ bellaso/
     web/                    Next.js App Router, client components only (Vercel)
       app/page.tsx          landing page
       app/create/           recipient setup and restore (7.1)
-      app/pay/[id]/         payer flow (7.2); id = qor1 address; fragment #k= = first 16 bytes of SHA-256 of the KEM key
+      app/pay/[id]/         payer flow (7.2); id = qor1 address; fragment #k= = first 16 bytes of SHA-256 of the KEM key; optional &a= and &t= = the amount and the token that the recipient asks for
       app/inbox/            scan and list (8)
       app/spend/[tx]/       spend (7.3, 7.4)
       app/receive/          get paid: payment link (method 1) and stealth addresses (4.6)

@@ -77,6 +77,21 @@
   padding: 0 22px;
 }
 
+.askRow {
+  display: flex;
+  gap: 10px;
+}
+
+.askRow input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.askToken {
+  flex: none;
+  width: 104px;
+}
+
 .notes {
   margin: 8px 0;
   padding-left: 18px;
