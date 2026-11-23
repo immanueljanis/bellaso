@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toBaseUnits } from "@/src/amount";
 import { type RecipientPublicData, loadRecipient } from "@/src/gateway";
-import { type PaymentPlan, GAS_ALLOWANCE_UQOR, PAYMENT_GAS_LIMIT, planPayment } from "@/src/payment";
+import { type PaymentPlan, GAS_ALLOWANCE_UQOR, PAYMENT_GAS_LIMIT, QOREX_PAYMENT_FEE_QOR, planPayment } from "@/src/payment";
 import { type QorexSignAndBroadcastResult, connectQorex, explainQorexError, qorexNative } from "@/src/qorex";
 import styles from "./pay.module.css";
 
@@ -149,8 +149,8 @@ export function PayClient({ recipient }: { recipient: string }) {
               </dd>
               <dt>Gas for the recipient to move it later</dt>
               <dd>{Number(GAS_ALLOWANCE_UQOR) / 1e6} QOR</dd>
-              <dt>Network fee, at most</dt>
-              <dd>{((PAYMENT_GAS_LIMIT * 0.15) / 1e6).toFixed(2)} QOR</dd>
+              <dt>Network fee, set by QoreX</dt>
+              <dd>about {QOREX_PAYMENT_FEE_QOR} QOR</dd>
             </dl>
 
             {stage === "loading" && <p className={styles.hint}>Reading the recipient’s keys from QoreChain…</p>}

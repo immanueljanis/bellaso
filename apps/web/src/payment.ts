@@ -9,10 +9,14 @@ import type { QorexEncodedMessage } from "./qorex";
 export const GAS_ALLOWANCE_UQOR = 150_000n;
 
 /**
- * Gas limit for MsgSend + 7 records. Gate G3 used 817,224 gas. QoreX uses 400,000 when no
- * limit is given, which is too low, and the chain charges the limit, not the gas used.
+ * Gas hint for MsgSend + 7 records (gate G3 used 817,224 gas). QoreX 0.4 ignores it for
+ * contract messages: it simulates and asks for the simulation × 1.3 (gate G4 asked for
+ * 3,046,888 gas and used 838,445).
  */
 export const PAYMENT_GAS_LIMIT = 1_200_000;
+
+/** The network fee QoreX charged for one payment in gate G4 (457,034 uqor). The chain charges the gas limit, not the gas used. */
+export const QOREX_PAYMENT_FEE_QOR = 0.46;
 
 const utf8 = new TextEncoder();
 
