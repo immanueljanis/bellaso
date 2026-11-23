@@ -52,7 +52,7 @@ B. Web
 
 C. Proof
 - [x] C10 `link-attempt.ts` (AC6). Pass on the clean account `qor130jx…`.
-- [ ] C11 Demo data: 20 or more payments to 2 or more recipients (AC4). Now 13 announcements: 7 to account A, 6 to qor130jx…. `scan.ts` finds 7 with 0 false positives, and chain and gateway outputs are identical (MEASURED). It needs more test QOR: the CLI payer has about 0.84 QOR and the sponsor wallet about 0.79 QOR.
+- [x] C11 Demo data (AC4): 20 announcements, 11 to account A and 9 to qor130jx…. `scan.ts` finds the 11 with 0 false positives, and the chain and gateway outputs are identical (MEASURED, 23 Nov). The sponsor got 1 QOR more (tx 33EA68EC…3869).
 - [ ] C12 Gates G8 (browser through the gateway) and G9 (normal wallets, method 2). G8 pass. G9 partial: the QoreX mobile **Send** and the EVM wallet are not tested yet.
 - [x] C13 `scan.ts --source gateway` equals `--source chain` (AC10)
 
