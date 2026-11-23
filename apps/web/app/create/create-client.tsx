@@ -64,6 +64,7 @@ export function CreateClient() {
   const [restoring, setRestoring] = useState(false);
   const [restoreText, setRestoreText] = useState("");
   const [showPhrase, setShowPhrase] = useState(false);
+  const [seen, setSeen] = useState(false);
   const [passphrase, setPassphrase] = useState("");
   const [repeat, setRepeat] = useState("");
   const [wroteDown, setWroteDown] = useState(false);
@@ -294,7 +295,10 @@ export function CreateClient() {
                                       type="button"
                                       className={ui.secondary}
                                       aria-expanded={showPhrase}
-                                      onClick={() => setShowPhrase(!showPhrase)}
+                                      onClick={() => {
+                                        setShowPhrase(!showPhrase);
+                                        setSeen(true);
+                                      }}
                                     >
                                       {showPhrase ? "Hide phrase" : "Show phrase"}
                                     </button>
@@ -352,8 +356,12 @@ export function CreateClient() {
                               </p>
                               {!restoring && (
                                 <label className={ui.check}>
-                                  <input type="checkbox" checked={wroteDown} onChange={(event) => setWroteDown(event.target.checked)} />
-                                  <span>I wrote the 24 words down. Without them, nobody can recover this account.</span>
+                                  <input type="checkbox" checked={wroteDown} disabled={!seen} onChange={(event) => setWroteDown(event.target.checked)} />
+                                  <span>
+                                    {seen
+                                      ? "I wrote the 24 words down. Without them, nobody can recover this account."
+                                      : "Show the phrase and write the 24 words down. Then confirm it here."}
+                                  </span>
                                 </label>
                               )}
                               <button type="button" className={ui.primary} onClick={save} disabled={!canSave}>
