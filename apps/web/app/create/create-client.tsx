@@ -206,13 +206,32 @@ export function CreateClient() {
         }
       />
       <main className="page">
-        <h1>Create your Bellaso</h1>
+        <h1>{allDone ? "Your Bellaso is ready" : "Create your Bellaso"}</h1>
         <p className={ui.lede}>
-          Five steps, about one minute. Every key is made in this browser and stays here. The chain only ever sees your two public keys.
+          {allDone
+            ? "Your link is below. The chain holds your two public keys, and every secret key stays in this browser."
+            : "You do the first step. Bellaso does the other four in about one minute. Every key is made in this browser and stays here."}
         </p>
 
         <div className={ui.columns}>
           <section aria-label="Setup steps" className={ui.wide}>
+            {allDone && recipient && (
+              <div className={styles.linkBox}>
+                <label htmlFor="paylink" className={styles.linkLabel}>
+                  Your payment link
+                </label>
+                <div className={styles.linkRow}>
+                  <input id="paylink" readOnly value={link} className={`${ui.input} ${styles.linkInput}`} />
+                  <button type="button" className={`${ui.primary} ${styles.copy}`} onClick={() => copyLink(link)}>
+                    {copied ? "Copied" : "Copy link"}
+                  </button>
+                </div>
+                <p className={styles.next}>
+                  Send it to clients. Each payment goes to a new address. <Link href="/inbox">Open my inbox</Link> ·{" "}
+                  <Link href="/receive">Make a stealth address for one client</Link>
+                </p>
+              </div>
+            )}
             {blockedByVault ? (
               <form
                 className={ui.card}
@@ -410,23 +429,6 @@ export function CreateClient() {
               </div>
             )}
 
-            {allDone && recipient && (
-              <div className={styles.linkBox}>
-                <label htmlFor="paylink" className={styles.linkLabel}>
-                  Your payment link
-                </label>
-                <div className={styles.linkRow}>
-                  <input id="paylink" readOnly value={link} className={`${ui.input} ${styles.linkInput}`} />
-                  <button type="button" className={`${ui.primary} ${styles.copy}`} onClick={() => copyLink(link)}>
-                    {copied ? "Copied" : "Copy link"}
-                  </button>
-                </div>
-                <p className={styles.next}>
-                  Send it to clients. Each payment goes to a new address. <Link href="/inbox">Open my inbox</Link> ·{" "}
-                  <Link href="/receive">Make a stealth address for one client</Link>
-                </p>
-              </div>
-            )}
           </section>
 
           <figure className={ui.side}>
