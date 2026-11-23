@@ -3,7 +3,7 @@
 import { TESTNET } from "@bellaso/chain";
 import { useEffect, useState } from "react";
 import { toBaseUnits } from "@/src/amount";
-import { type RecipientPublicData, loadRecipient } from "@/src/gateway";
+import { type RecipientPublicData, loadRecipient, txUrl } from "@/src/gateway";
 import { type PaymentPlan, GAS_ALLOWANCE_UQOR, PAYMENT_GAS_LIMIT, QOREX_PAYMENT_FEE_QOR, planPayment } from "@/src/payment";
 import { type QorexSignAndBroadcastResult, connectQorex, explainQorexError, qorexNative } from "@/src/qorex";
 import { SiteHeader } from "../../site-header";
@@ -180,7 +180,10 @@ export function PayClient({ recipient }: { recipient: string }) {
                 <p className={ui.doneTitle}>Paid to a fresh address.</p>
                 <p>Nobody can link it to this link, now or after Q-Day.</p>
                 <p className={ui.stepDetail}>
-                  {plan.target.address} · shield {result.shield}
+                  {plan.target.address} · shield {result.shield} ·{" "}
+                  <a href={txUrl(result.txHash)} target="_blank" rel="noreferrer">
+                    view the transaction
+                  </a>
                 </p>
               </div>
             )}
