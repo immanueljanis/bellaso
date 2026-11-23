@@ -7,5 +7,12 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@noble/curves": "2.4.0",
+    "@noble/hashes": "^2.4.0",
+    "@qorechain/qoreseal": "0.1.0",
+    "@scure/base": "2.4.0",
+    "base32768": "5.0.1"
   }
 }
