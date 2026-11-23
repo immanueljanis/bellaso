@@ -181,6 +181,7 @@ export function sponsorWallet(mnemonic: string, chainRpc: string, chainRest: str
     });
     const tx = await ready;
     const result = await tx.bankSend(address, [{ denom: QOR, amount: String(uqor) }]);
+    if (result.code !== 0) throw new Error(`The chain refused the sponsor send (code ${result.code}).`);
     return result.transactionHash;
   };
 }

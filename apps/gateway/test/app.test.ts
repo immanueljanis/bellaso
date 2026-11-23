@@ -64,7 +64,7 @@ test("readConfig refuses a bad port and splits the origins", () => {
 test("readConfig gives the sponsor and transfer defaults and refuses bad numbers", () => {
   const defaults = readConfig({});
   expect(defaults.sponsorMnemonic).toBeUndefined();
-  expect(defaults.sponsorAmountUqor).toBe(100_000);
+  expect(defaults.sponsorAmountUqor).toBe(120_000);
   expect(defaults.sponsorDailyCap).toBe(50);
   expect(defaults.transfersFromHeight).toBe(10_600_000);
   expect(defaults.trustProxyHops).toBe(1);

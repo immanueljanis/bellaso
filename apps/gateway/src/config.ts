@@ -8,6 +8,7 @@ export interface GatewayConfig {
   announcementContract: string;
   /** The recovery phrase of the sponsor wallet. Without it, the sponsor routes answer 503. */
   sponsorMnemonic?: string;
+  /** The setup amount. Gates G1 and G2 paid 58,763 + 38,120 uqor, so 120,000 leaves a margin. */
   sponsorAmountUqor: number;
   /** The most sponsorships (setup and gas together) in 24 hours. */
   sponsorDailyCap: number;
@@ -41,7 +42,7 @@ export function readConfig(env: Record<string, string | undefined> = process.env
     chainRpc: trimSlash(env.CHAIN_RPC ?? TESTNET.rpc),
     announcementContract: env.ANNOUNCEMENT_CONTRACT ?? TESTNET.announcementContract,
     sponsorMnemonic: env.SPONSOR_MNEMONIC?.trim() || undefined,
-    sponsorAmountUqor: integer(env, "SPONSOR_AMOUNT_UQOR", 100_000, 1),
+    sponsorAmountUqor: integer(env, "SPONSOR_AMOUNT_UQOR", 120_000, 1),
     sponsorDailyCap: integer(env, "SPONSOR_DAILY_CAP", 50, 0),
     transfersFromHeight: integer(env, "TRANSFERS_FROM_HEIGHT", 10_600_000, 0),
     trustProxyHops: integer(env, "TRUST_PROXY_HOPS", 1, 0),

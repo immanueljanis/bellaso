@@ -57,7 +57,7 @@ test("POST /v1/sponsor funds a new account one time and refuses an existing acco
   const first = await app.inject(post("/v1/sponsor", { address: address(1) }));
   expect(first.statusCode).toBe(200);
   expect(first.json()).toEqual({ txHash: "TX1" });
-  expect(sent).toEqual([[address(1), 100_000]]);
+  expect(sent).toEqual([[address(1), config.sponsorAmountUqor]]);
 
   const again = await app.inject(post("/v1/sponsor", { address: address(1) }));
   expect(again.statusCode).toBe(409);
