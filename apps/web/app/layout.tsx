@@ -13,8 +13,11 @@ const sans = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], 
 const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
-  title: "Bellaso",
+  metadataBase: new URL("https://bellaso.vercel.app"),
+  title: { default: "Bellaso", template: "%s · Bellaso" },
   description: "Private payment links that stay private after Q-Day.",
+  openGraph: { images: [{ url: "/brand/cover-1600x900.png", width: 1600, height: 900 }] },
+  twitter: { card: "summary_large_image", images: ["/brand/cover-1600x900.png"] },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
