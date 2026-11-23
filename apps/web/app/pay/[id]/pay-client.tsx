@@ -1,6 +1,7 @@
 "use client";
 
 import { TESTNET } from "@bellaso/chain";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { PAYMENT_TOKENS, toBaseUnits } from "@/src/amount";
 import { type RecipientPublicData, loadRecipient, txUrl } from "@/src/gateway";
@@ -110,7 +111,9 @@ export function PayClient({ recipient }: { recipient: string }) {
           <h1 id="pay-title" className={ui.title}>
             Pay
           </h1>
-          <p className={styles.intro}>A Bellaso payment link. Your payment goes to a new address that only the recipient can find.</p>
+          <p className={styles.intro}>
+            A Bellaso payment link. Your payment goes to a new address that only the recipient can find. <Link href="/">What is Bellaso?</Link>
+          </p>
           <p className={ui.meta}>To {short(recipient)}</p>
 
           <div className={ui.card}>
