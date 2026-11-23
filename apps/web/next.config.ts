@@ -5,9 +5,10 @@ const isDev = process.env.NODE_ENV === "development";
 const gatewayOrigin = new URL(process.env.NEXT_PUBLIC_GATEWAY_URL ?? "https://gateway-production-4e82893b.up.railway.app").origin;
 
 /**
- * The Content Security Policy (Next.js guide "Without Nonces"). `connect-src` allows only this
- * site and the gateway, so a script that ever ran here could not send the vault or a phrase to
- * another server. `frame-ancestors 'none'` stops clickjacking of the spend and create pages.
+ * The Content Security Policy (Next.js guide "Without Nonces"). `connect-src` lets fetch and
+ * XHR reach only this site and the gateway. It does not stop a top-level navigation, and
+ * `'unsafe-inline'` scripts stay allowed, so it narrows an XSS but does not contain it.
+ * `frame-ancestors 'none'` stops clickjacking of the spend and create pages.
  */
 const csp = [
   "default-src 'self'",

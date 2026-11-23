@@ -1,5 +1,6 @@
 import type { Coin, Transfer } from "@bellaso/chain";
 import { type RecipientKeys, decodeAnnouncement, openAnnouncement } from "@bellaso/core";
+import { fromBase64 } from "./bytes";
 import { GATEWAY_URL } from "./gateway";
 import type { InboxPayment, StealthEntry } from "./vault";
 
@@ -23,7 +24,6 @@ export interface GatewayTransfer {
 
 const PAGE = 500;
 
-const fromBase64 = (text: string) => Uint8Array.from(atob(text), (char) => char.charCodeAt(0));
 
 /**
  * Every page of a gateway feed, in height order. The request has no address, so the
@@ -81,10 +81,14 @@ export function matchStealth(stealth: StealthEntry[], transfers: GatewayTransfer
   });
 }
 
-/** Joins a new scan with the vault list. A payment keeps the spend status that the vault has for it. */
+/**
+ * Joins a new scan with the vault list. The result keeps every known payment, because the chain
+ * never removes one, so a gateway that withholds items cannot erase the vault. A payment keeps the
+ * spend status that the vault has for it.
+ */
 export function mergePayments(known: InboxPayment[], found: InboxPayment[]): InboxPayment[] {
-  const spent = new Map(known.map((payment) => [`${payment.txHash}/${payment.address}`, payment.spentTx]));
-  return found
-    .map((payment) => ({ ...payment, spentTx: spent.get(`${payment.txHash}/${payment.address}`) }))
-    .sort((a, b) => b.height - a.height);
+  const key = (payment: InboxPayment) => `${payment.txHash}/${payment.address}`;
+  const merged = new Map(known.map((payment) => [key(payment), payment]));
+  for (const payment of found) merged.set(key(payment), { ...payment, spentTx: merged.get(key(payment))?.spentTx });
+  return [...merged.values()].sort((a, b) => b.height - a.height);
 }

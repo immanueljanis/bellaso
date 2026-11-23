@@ -10,6 +10,7 @@ import {
   tweakPublicKey,
 } from "@bellaso/core";
 import { GATEWAY_REST, type PqcKeypair, type Recipient, balancesOf, gatewayClient, loadSdk, postGateway, waitForQor } from "./chain-client";
+import { fromBase64 } from "./bytes";
 import type { InboxPayment } from "./vault";
 
 /** Fee budget of the one-time MsgRegisterPQCKeyV2. Gate G5 paid about 0.059 QOR. */
@@ -17,6 +18,8 @@ export const REGISTRATION_UQOR = 65_000n;
 /** Fee budget of the hybrid MsgSend. Gate G5 paid 34,133 uqor. */
 export const SEND_UQOR = 40_000n;
 const GAS_PRICE_UQOR = 0.15;
+/** The highest fee transaction 2 may pay: twice its budget, so a dishonest simulation cannot burn the QOR as fee. */
+export const MAX_SEND_FEE_UQOR = 2n * SEND_UQOR;
 const GAS_MULTIPLIER = 1.4;
 const QOR = TESTNET.denoms.QOR.denom;
 
@@ -26,7 +29,6 @@ export interface OneTimeAccount {
   pqcKeypair: PqcKeypair;
 }
 
-const fromBase64 = (text: string) => Uint8Array.from(atob(text), (char) => char.charCodeAt(0));
 
 /**
  * The keys of the one-time account of a payment, from the recovery phrase only. Method 1
@@ -103,6 +105,7 @@ export async function sendAll(account: OneTimeAccount, destination: string): Pro
   });
   const gas = Math.ceil((await tx.simulate([message(held)])) * GAS_MULTIPLIER);
   const fee = BigInt(Math.ceil(gas * GAS_PRICE_UQOR));
+  if (fee > MAX_SEND_FEE_UQOR) throw new Error(`The network asked for an unusual fee (${fee} uqor). The spend stopped before signing.`);
   const amount = sendAmount(held, fee);
   if (amount.length === 0) throw new Error("This address holds nothing to send after the fee.");
   const result = await tx.signAndBroadcast([message(amount)], { amount: [{ denom: QOR, amount: fee.toString() }], gas: gas.toString() });

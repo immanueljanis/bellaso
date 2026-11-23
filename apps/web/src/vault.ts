@@ -1,4 +1,5 @@
 import type { Coin } from "@bellaso/chain";
+import { fromBase64, toBase64 } from "./bytes";
 
 const STORAGE_KEY = "bellaso.vault.v1";
 const ITERATIONS = 600_000;
@@ -38,8 +39,6 @@ interface Sealed {
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
-const toBase64 = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes));
-const fromBase64 = (text: string) => Uint8Array.from(atob(text), (char) => char.charCodeAt(0));
 
 let session: { key: CryptoKey; salt: Uint8Array<ArrayBuffer>; data: VaultData } | null = null;
 

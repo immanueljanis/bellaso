@@ -39,3 +39,11 @@ test("matchStealth keeps only transfers to vault addresses, and mergePayments ke
   const merged = mergePayments([{ ...found[0]!, spentTx: "S1" }], found);
   expect(merged[0]!.spentTx).toBe("S1");
 });
+
+test("mergePayments keeps a known payment that a scan did not return", () => {
+  const coin = [{ denom: "uqor", amount: "1" }];
+  const old = { method: "stealth" as const, txHash: "T0", height: 3, address: "qor1a", amount: coin, index: 0, spentTx: "S0" };
+  const fresh = { method: "stealth" as const, txHash: "T1", height: 9, address: "qor1b", amount: coin, index: 1 };
+  expect(mergePayments([old], [fresh]).map((payment) => payment.txHash)).toEqual(["T1", "T0"]);
+  expect(mergePayments([old], [])[0]!.spentTx).toBe("S0");
+});

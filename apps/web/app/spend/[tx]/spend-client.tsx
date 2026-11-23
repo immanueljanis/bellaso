@@ -104,10 +104,15 @@ export function SpendClient({ txHash }: { txHash: string }) {
       const sent = await sendAll(account, target);
       mark(1, `secp256k1 + ML-DSA-87 · tx ${short(sent.hash)}`);
       mark(2, sent.hybrid ? "event pqc_hybrid_verify" : "No pqc_hybrid_verify event in the result");
-      await updateVault((data) => ({
-        ...data,
-        payments: data.payments.map((item) => (item.txHash === payment.txHash && item.address === payment.address ? { ...item, spentTx: sent.hash } : item)),
-      }));
+      const left = await balancesOf(account.address);
+      if (left.some((coin) => coin.denom !== TESTNET.denoms.QOR.denom && BigInt(coin.amount) > 0n)) {
+        setError("Tokens are still on this address. Open the payment from the inbox again to spend the rest.");
+      } else {
+        await updateVault((data) => ({
+          ...data,
+          payments: data.payments.map((item) => (item.txHash === payment.txHash && item.address === payment.address ? { ...item, spentTx: sent.hash } : item)),
+        }));
+      }
       setResult(sent);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));

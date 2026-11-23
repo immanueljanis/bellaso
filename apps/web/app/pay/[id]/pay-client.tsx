@@ -4,6 +4,7 @@ import { TESTNET } from "@bellaso/chain";
 import { useEffect, useState } from "react";
 import { toBaseUnits } from "@/src/amount";
 import { type RecipientPublicData, loadRecipient, txUrl } from "@/src/gateway";
+import { fingerprintFromHash, kemFingerprint } from "@/src/link";
 import { type PaymentPlan, GAS_ALLOWANCE_UQOR, PAYMENT_GAS_LIMIT, QOREX_PAYMENT_FEE_QOR, planPayment } from "@/src/payment";
 import { type QorexSignAndBroadcastResult, connectQorex, explainQorexError, qorexNative } from "@/src/qorex";
 import { SiteHeader } from "../../site-header";
@@ -38,7 +39,11 @@ export function PayClient({ recipient }: { recipient: string }) {
   useEffect(() => {
     setHasQorex(qorexNative() !== null);
     loadRecipient(recipient)
-      .then((data) => {
+      .then(async (data) => {
+        const expected = fingerprintFromHash(window.location.hash);
+        if (expected && (await kemFingerprint(data.kemPublicKey)) !== expected) {
+          throw new Error("The encryption key from the network does not match this link. Do not pay. Ask the recipient to send the link again.");
+        }
         setKeys(data);
         setStage("ready");
       })
@@ -192,7 +197,7 @@ export function PayClient({ recipient }: { recipient: string }) {
             {stage === "done" && result && plan && (
               <div className={ui.done}>
                 <p className={ui.doneTitle}>Paid to a fresh address.</p>
-                <p>Nobody can link it to this link, now or after Q-Day.</p>
+                <p>No chain observer can link it to this link, now or after Q-Day.</p>
                 <p className={ui.stepDetail}>
                   {plan.target.address} · shield {result.shield} ·{" "}
                   <a href={txUrl(result.txHash)} target="_blank" rel="noreferrer">

@@ -6,13 +6,14 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { type Recipient, deriveRecipient } from "@/src/chain-client";
 import { txUrl } from "@/src/gateway";
+import { paymentLink } from "@/src/link";
 import { chainKeys, fundAccount, registerKemKey, registerSigningKey, setupNeeds } from "@/src/setup";
 import { createVault, exportVault, hasVault, openVault, unlockVault } from "@/src/vault";
 import { SiteHeader } from "../site-header";
 import ui from "../ui.module.css";
 import styles from "./create.module.css";
 
-const MIN_PASSPHRASE = 10;
+const MIN_PASSPHRASE = 12;
 
 const STEPS = [
   {
@@ -184,7 +185,10 @@ export function CreateClient() {
     setCopied(true);
   }
 
-  const link = recipient ? `${origin}/pay/${recipient.address}` : "";
+  const [link, setLink] = useState("");
+  useEffect(() => {
+    if (recipient && origin) void paymentLink(origin, recipient.address, recipient.kemPublicKey).then(setLink);
+  }, [recipient, origin]);
   const allDone = done >= 5;
   const blockedByVault = existing && done === 0;
 

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { encode } from "uqr";
 import { formatCoin } from "@/src/amount";
 import { deriveRecipient } from "@/src/chain-client";
+import { paymentLink } from "@/src/link";
 import { type GatewayTransfer, fetchTransfers } from "@/src/inbox";
 import { type StealthEntry, updateVault } from "@/src/vault";
 import { SiteHeader } from "../site-header";
@@ -78,7 +79,11 @@ export function ReceiveClient() {
   }, [made]);
 
   const stealth = vault?.stealth ?? [];
-  const link = vault ? `${origin}/pay/${vault.address}` : "";
+  const [link, setLink] = useState("");
+  useEffect(() => {
+    if (!vault || !origin) return;
+    void deriveRecipient(vault.mnemonic).then((derived) => paymentLink(origin, vault.address, derived.kemPublicKey)).then(setLink);
+  }, [vault, origin]);
   const current = METHODS.find((item) => item.value === method)!;
 
   async function copy(text: string, what: string) {
@@ -167,7 +172,7 @@ export function ReceiveClient() {
                     </label>
                     <div className={styles.copyRow}>
                       <input id="paylink" readOnly value={link} className={`${ui.input} ${styles.mono}`} />
-                      <button type="button" className={`${ui.primary} ${styles.copy}`} onClick={() => copy(link, "link")}>
+                      <button type="button" className={`${ui.primary} ${styles.copy}`} onClick={() => copy(link, "link")} disabled={!link}>
                         {copied === "link" ? "Copied" : "Copy link"}
                       </button>
                     </div>

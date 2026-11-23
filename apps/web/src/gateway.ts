@@ -1,4 +1,5 @@
 import { addressOf } from "@bellaso/core";
+import { fromBase64 } from "./bytes";
 
 /** The Bellaso gateway. The browser cannot call the public REST endpoint, because it sends no CORS headers. */
 export const GATEWAY_URL = (process.env.NEXT_PUBLIC_GATEWAY_URL ?? "https://gateway-production-4e82893b.up.railway.app").replace(
@@ -20,7 +21,6 @@ export interface RecipientPublicData {
   kemPublicKey: Uint8Array;
 }
 
-const fromBase64 = (text: string) => Uint8Array.from(atob(text), (char) => char.charCodeAt(0));
 
 /**
  * The public data a payer needs for recipient `address`. Checks that the public key on
