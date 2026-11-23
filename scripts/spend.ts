@@ -32,14 +32,14 @@ async function main() {
   const scan = await scanChain(announcementContract(), keys);
   let payment;
   let held: Coin[] = [];
-  for (const found of scan.found) {
+  for (const found of scan) {
     held = (await balances(found.address)).filter((coin) => BigInt(coin.amount) > 0n);
     if (held.length > 0) {
       payment = found;
       break;
     }
   }
-  if (!payment) throw new Error(`No unspent payment among ${scan.found.length} found payments.`);
+  if (!payment) throw new Error(`No unspent payment among ${scan.length} found payments.`);
   console.log(`Spending ${payment.address} · holds ${held.map((c) => `${c.amount} ${c.denom}`).join(" + ")} · to ${destination}`);
 
   const pqcKeypair = generatePqcKeypair(payment.pqSeed);

@@ -76,24 +76,34 @@ export interface SearchedTx {
   tx: Uint8Array;
 }
 
+export interface TxEvent {
+  type: string;
+  attributes: { key: string; value: string }[];
+}
+
+export interface SearchedTxWithEvents extends SearchedTx {
+  /** The events of the transaction result, as CometBFT returns them. */
+  events: TxEvent[];
+}
+
 export interface SearchOptions {
   minHeight?: number;
   page?: number;
   perPage?: number;
 }
 
-/** One page of CometBFT `tx_search` for `query`, from `minHeight` on, in height order. */
-async function searchTxs(
+/** One page of CometBFT `tx_search` for `query` (without the outer quotes), from `minHeight` on, in height order. */
+export async function searchTxs(
   rpcUrl: string,
   query: string,
-  { minHeight = 0, page = 1, perPage = 100 }: SearchOptions,
-): Promise<{ total: number; txs: SearchedTx[] }> {
+  { minHeight = 0, page = 1, perPage = 100 }: SearchOptions = {},
+): Promise<{ total: number; txs: SearchedTxWithEvents[] }> {
   const filter = minHeight > 0 ? `${query} AND tx.height>=${minHeight}` : query;
   const url = `${rpcUrl}/tx_search?query=${encodeURIComponent(`"${filter}"`)}&page=${page}&per_page=${perPage}&order_by=%22asc%22`;
   const response = await fetch(url);
   if (!response.ok) throw new Error(`tx_search answered ${response.status}`);
   const { result } = (await response.json()) as {
-    result: { total_count: string; txs: { hash: string; height: string; tx: string }[] };
+    result: { total_count: string; txs: { hash: string; height: string; tx: string; tx_result?: { events?: TxEvent[] } }[] };
   };
   return {
     total: Number(result.total_count),
@@ -101,6 +111,7 @@ async function searchTxs(
       hash: item.hash,
       height: Number(item.height),
       tx: Uint8Array.from(atob(item.tx), (char) => char.charCodeAt(0)),
+      events: item.tx_result?.events ?? [],
     })),
   };
 }
