@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { FigJourney } from "./fig-journey";
+import { HeroCta } from "./hero-cta";
 import { SiteHeader } from "./site-header";
 import ui from "./ui.module.css";
 import styles from "./landing.module.css";
@@ -152,9 +153,7 @@ export default function Home() {
               ))}
             </ul>
             <div className={`${styles.actions} ${styles.up} ${styles.u2}`}>
-              <Link href="/create" className={styles.cta}>
-                Create my Bellaso <span className={styles.arrow}>→</span>
-              </Link>
+              <HeroCta />
               <Link href={`/pay/${DEMO_RECIPIENT}#k=${DEMO_FINGERPRINT}`} className={styles.textLink}>
                 See a payment link <span className={styles.arrow}>→</span>
               </Link>
