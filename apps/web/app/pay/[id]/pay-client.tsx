@@ -16,22 +16,27 @@ const TOKENS = [
   { symbol: "fBTC", ...TESTNET.denoms.fBTC },
 ] as const;
 
-type Stage = "loading" | "ready" | "connected" | "signing" | "done" | "error";
+type Stage = "loading" | "ready" | "signing" | "done" | "error";
 
 const short = (address: string) => `${address.slice(0, 12)}…${address.slice(-7)}`;
+const ALLOWANCE_QOR = Number(GAS_ALLOWANCE_UQOR) / 1e6;
+const TOTAL_QOR = (ALLOWANCE_QOR + QOREX_PAYMENT_FEE_QOR).toFixed(2);
 
 /** Method 1, the payer flow (SPEC section 7.2): one QoreX transaction with the transfer and the announcement. */
 export function PayClient({ recipient }: { recipient: string }) {
   const [stage, setStage] = useState<Stage>("loading");
   const [keys, setKeys] = useState<RecipientPublicData | null>(null);
   const [payer, setPayer] = useState<string | null>(null);
-  const [amountText, setAmountText] = useState("150.00");
+  const [amountText, setAmountText] = useState("");
   const [symbol, setSymbol] = useState<(typeof TOKENS)[number]["symbol"]>("fUSD");
   const [plan, setPlan] = useState<PaymentPlan | null>(null);
   const [result, setResult] = useState<QorexSignAndBroadcastResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [hasQorex, setHasQorex] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
+    setHasQorex(qorexNative() !== null);
     loadRecipient(recipient)
       .then((data) => {
         setKeys(data);
@@ -45,38 +50,31 @@ export function PayClient({ recipient }: { recipient: string }) {
 
   const token = TOKENS.find((t) => t.symbol === symbol)!;
   const amount = toBaseUnits(amountText, token.decimals);
-  const hasQorex = stage !== "loading" && qorexNative() !== null;
-
-  async function connect() {
-    setError(null);
-    try {
-      setPayer(await connectQorex(TESTNET.chainId));
-      setStage("connected");
-    } catch (reason) {
-      setError(explainQorexError(reason));
-    }
-  }
+  const shown = amount ? amountText.trim() : "0";
 
   async function pay() {
     const native = qorexNative();
-    if (!keys || !payer || !amount || !native) return;
+    if (!keys || !amount || !native) return;
     setError(null);
-    const next = planPayment(payer, keys, token.denom, amount);
-    setPlan(next);
     setStage("signing");
     try {
-      const sent = await native.signAndBroadcast({
-        chainId: TESTNET.chainId,
-        messages: next.messages,
-        gasLimit: PAYMENT_GAS_LIMIT,
-      });
+      const from = payer ?? (await connectQorex(TESTNET.chainId));
+      setPayer(from);
+      const next = planPayment(from, keys, token.denom, amount);
+      setPlan(next);
+      const sent = await native.signAndBroadcast({ chainId: TESTNET.chainId, messages: next.messages, gasLimit: PAYMENT_GAS_LIMIT });
       if (sent.code !== 0) throw new Error(`The chain refused the transaction (code ${sent.code}, tx ${sent.txHash}).`);
       setResult(sent);
       setStage("done");
     } catch (reason) {
       setError(explainQorexError(reason));
-      setStage("connected");
+      setStage("ready");
     }
+  }
+
+  async function copyLink() {
+    await navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
   }
 
   const steps = plan
@@ -94,13 +92,13 @@ export function PayClient({ recipient }: { recipient: string }) {
   return (
     <>
       <SiteHeader />
-
       <main className={ui.main}>
         <section className={ui.form} aria-labelledby="pay-title">
           <h1 id="pay-title" className={ui.title}>
             Pay
           </h1>
-          <p className={ui.meta}>{recipient}</p>
+          <p className={styles.intro}>A Bellaso payment link. Your payment goes to a new address that only the recipient can find.</p>
+          <p className={ui.meta}>To {short(recipient)}</p>
 
           <div className={ui.card}>
             <label htmlFor="amount" className={ui.label}>
@@ -112,6 +110,7 @@ export function PayClient({ recipient }: { recipient: string }) {
                 className={`${ui.field} ${styles.amount}`}
                 inputMode="decimal"
                 autoComplete="off"
+                placeholder="0.00"
                 value={amountText}
                 onChange={(event) => setAmountText(event.target.value)}
                 disabled={stage === "signing" || stage === "done"}
@@ -135,30 +134,45 @@ export function PayClient({ recipient }: { recipient: string }) {
             <dl className={ui.facts}>
               <dt>The recipient gets</dt>
               <dd>
-                {amount ? amountText : "0"} {symbol}
+                {shown} {symbol}
               </dd>
-              <dt>Gas for the recipient to move it later</dt>
-              <dd>{Number(GAS_ALLOWANCE_UQOR) / 1e6} QOR</dd>
-              <dt>Network fee, set by QoreX</dt>
+              <dt>Gas for the recipient</dt>
+              <dd>{ALLOWANCE_QOR} QOR</dd>
+              <dt>Network fee (QoreX)</dt>
               <dd>about {QOREX_PAYMENT_FEE_QOR} QOR</dd>
             </dl>
+            <p className={styles.total}>
+              <span>Total from your wallet</span>
+              <strong>
+                {shown} {symbol} + about {TOTAL_QOR} QOR
+              </strong>
+            </p>
 
             {stage === "loading" && <p className={ui.hint}>Reading the recipient’s keys from QoreChain…</p>}
-            {stage === "ready" && (
+
+            {(stage === "ready" || stage === "signing") && hasQorex && (
               <>
-                <button type="button" className={ui.primary} onClick={connect} disabled={!hasQorex}>
-                  Connect QoreX
+                <button type="button" className={ui.primary} onClick={pay} disabled={!amount || stage === "signing"}>
+                  {stage === "signing" ? "Check QoreX…" : `Pay ${amount ? `${shown} ${symbol} ` : ""}with QoreX`}
                 </button>
-                {!hasQorex && <p className={ui.hint}>Open this page in the QoreX app (dApp browser, testnet on) to pay.</p>}
+                <p className={ui.hint}>
+                  {payer ? `Connected as ${short(payer)}. ` : "QoreX asks you to connect, then to sign. "}You sign one transaction.
+                </p>
               </>
             )}
-            {stage === "connected" && (
-              <>
-                <button type="button" className={ui.primary} onClick={pay} disabled={!amount}>
-                  Pay {amount ? amountText : ""} {symbol} with QoreX →
+
+            {stage === "ready" && !hasQorex && (
+              <div className={styles.noWallet}>
+                <p className={styles.noWalletTitle}>Open this link in the QoreX app to pay</p>
+                <ol className={styles.noWalletSteps}>
+                  <li>Open QoreX on your phone.</li>
+                  <li>Turn on Settings › Use testnet (developers).</li>
+                  <li>Open this link in the QoreX browser.</li>
+                </ol>
+                <button type="button" className={ui.secondary} onClick={copyLink}>
+                  {copied ? "Link copied" : "Copy this link"}
                 </button>
-                <p className={ui.hint}>Connected as {payer ? short(payer) : ""}. You sign one transaction.</p>
-              </>
+              </div>
             )}
 
             {steps.length > 0 && (

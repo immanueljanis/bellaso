@@ -329,6 +329,92 @@
   color: var(--chalk);
 }
 
+.nav a[aria-current="page"] {
+  color: var(--chalk);
+  background-image: linear-gradient(var(--orange-chalk), var(--orange-chalk));
+  background-size: 100% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  padding-bottom: 2px;
+}
+
+.tabs {
+  display: none;
+}
+
+.long {
+  display: inline;
+}
+
+.short {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .nav {
+    display: none;
+  }
+
+  .tabs {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom);
+    background: var(--board-raised);
+    border-top: 1px solid oklch(0.94 0.008 95 / 0.12);
+  }
+
+  .tabs a {
+    flex: 1;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--chalk-muted);
+    text-decoration: none;
+    transition: color 180ms var(--ease-ui);
+  }
+
+  .tabs a[aria-current="page"] {
+    color: var(--blue-chalk);
+  }
+
+  :global(body):has(.tabs) {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom));
+  }
+
+  .long {
+    display: none;
+  }
+
+  .short {
+    display: inline;
+  }
+}
+
+@media (pointer: coarse) {
+  .textLink {
+    min-height: 44px;
+    padding: 0 4px;
+  }
+
+  .secondary {
+    height: 44px;
+  }
+
+  .check {
+    min-height: 44px;
+    align-items: center;
+  }
+}
+
 .lede {
   margin: 14px 0 0;
   max-width: 56ch;
@@ -501,5 +587,14 @@
 
   .main {
     padding: 48px 16px 72px;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .figure,
+  .side {
+    padding: 24px 8px;
   }
 }

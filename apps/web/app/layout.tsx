@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { EB_Garamond, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import type { ReactNode } from "react";
 import "./globals.css";
@@ -19,6 +19,8 @@ export const metadata: Metadata = {
   openGraph: { images: [{ url: "/brand/cover-1600x900.png", width: 1600, height: 900 }] },
   twitter: { card: "summary_large_image", images: ["/brand/cover-1600x900.png"] },
 };
+
+export const viewport: Viewport = { themeColor: "#161D1B", colorScheme: "dark", viewportFit: "cover" };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

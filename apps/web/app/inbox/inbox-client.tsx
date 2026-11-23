@@ -81,12 +81,13 @@ export function InboxClient() {
         action={
           vault && (
             <button type="button" className={ui.secondary} onClick={lock}>
-              Lock vault
+              <span className={ui.long}>Lock vault</span>
+              <span className={ui.short}>Lock</span>
             </button>
           )
         }
       />
-      <main className="page">
+      <main className={`page ${styles.inboxPage}`}>
         {!vault ? (
           <>
             <h1>Inbox</h1>

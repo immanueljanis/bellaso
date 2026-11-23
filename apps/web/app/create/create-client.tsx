@@ -194,7 +194,8 @@ export function CreateClient() {
         action={
           !allDone && (
             <Link href="/" className={ui.textLink}>
-              Cancel setup
+              <span className={ui.long}>Cancel setup</span>
+              <span className={ui.short}>Cancel</span>
             </Link>
           )
         }

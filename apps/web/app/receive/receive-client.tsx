@@ -2,7 +2,7 @@
 
 import type { Coin } from "@bellaso/chain";
 import { stealthAddress } from "@bellaso/core";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { encode } from "uqr";
 import { formatCoin } from "@/src/amount";
 import { deriveRecipient } from "@/src/chain-client";
@@ -14,6 +14,11 @@ import { VaultGate, useVault } from "../vault-gate";
 import styles from "./receive.module.css";
 
 type Method = "link" | "stealth";
+
+const METHODS: { value: Method; title: string; body: string }[] = [
+  { value: "link", title: "Payment link", body: "One link for everyone. The payer opens it and pays with QoreX." },
+  { value: "stealth", title: "Stealth address", body: "A new address for one client. The client pays from any wallet with a normal transfer." },
+];
 
 const short = (address: string) => `${address.slice(0, 10)}…${address.slice(-7)}`;
 
@@ -46,7 +51,7 @@ function totals(transfers: GatewayTransfer[]): Coin[] {
 
 /** Get paid (SPEC sections 7.1 and 7.5): the payment link, and stealth addresses for one client each. */
 export function ReceiveClient() {
-  const { state, opened } = useVault();
+  const { state, opened, lock } = useVault();
   const vault = state.kind === "open" ? state.vault : null;
   const [method, setMethod] = useState<Method>("link");
   const [label, setLabel] = useState("");
@@ -57,6 +62,7 @@ export function ReceiveClient() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [origin, setOrigin] = useState("");
+  const madeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setOrigin(window.location.origin);
@@ -65,8 +71,15 @@ export function ReceiveClient() {
       .catch(() => setTransfers(null));
   }, []);
 
+  useEffect(() => {
+    if (!made) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    madeRef.current?.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
+  }, [made]);
+
   const stealth = vault?.stealth ?? [];
   const link = vault ? `${origin}/pay/${vault.address}` : "";
+  const current = METHODS.find((item) => item.value === method)!;
 
   async function copy(text: string, what: string) {
     await navigator.clipboard.writeText(text);
@@ -106,43 +119,49 @@ export function ReceiveClient() {
 
   return (
     <>
-      <SiteHeader nav />
+      <SiteHeader
+        nav
+        action={
+          vault && (
+            <button type="button" className={ui.secondary} onClick={lock}>
+              <span className={ui.long}>Lock vault</span>
+              <span className={ui.short}>Lock</span>
+            </button>
+          )
+        }
+      />
       <main className="page">
         <h1>Get paid</h1>
-        <p className={ui.lede}>Two ways. Both send each payment to an address that nobody can link to you, today or after Q-Day.</p>
+        <p className={ui.lede}>Each payment lands in a new address that nobody can link to you, today or after Q-Day.</p>
 
         {!vault ? (
           <div style={{ marginTop: 40 }}>
             <VaultGate state={state} onUnlocked={opened} />
           </div>
         ) : (
-          <>
-            <div className={ui.columns}>
-              <section className={ui.wide} aria-label="Ways to get paid">
-                <div className={styles.methods} role="radiogroup" aria-label="Method">
-                  {(
-                    [
-                      ["link", "Method 1", "Payment link", "One link for everyone. The payer opens it and pays with QoreX."],
-                      ["stealth", "Method 2", "Stealth address", "A new address for one client. The client pays from any wallet."],
-                    ] as const
-                  ).map(([value, kicker, title, body]) => (
-                    <button
-                      key={value}
-                      type="button"
-                      role="radio"
-                      aria-checked={method === value}
-                      className={`${styles.method} ${method === value ? styles.methodOn : ""}`}
-                      onClick={() => setMethod(value)}
-                    >
-                      <span className={styles.kicker}>{kicker}</span>
-                      <span className={styles.methodTitle}>{title}</span>
-                      <span className={styles.methodBody}>{body}</span>
-                    </button>
-                  ))}
-                </div>
+          <div className={`${ui.columns} ${styles.columns}`}>
+            <section className={ui.wide} aria-label="Ways to get paid">
+              <div className={styles.switcher} role="tablist" aria-label="How do you want to get paid?">
+                {METHODS.map((item) => (
+                  <button
+                    key={item.value}
+                    id={`tab-${item.value}`}
+                    type="button"
+                    role="tab"
+                    aria-selected={method === item.value}
+                    aria-controls="method-panel"
+                    className={styles.tab}
+                    onClick={() => setMethod(item.value)}
+                  >
+                    {item.title}
+                  </button>
+                ))}
+              </div>
+              <p className={styles.methodBody}>{current.body}</p>
 
+              <div id="method-panel" role="tabpanel" aria-labelledby={`tab-${method}`} className={styles.panelWrap}>
                 {method === "link" ? (
-                  <div className={`${ui.card} ${styles.panel}`}>
+                  <div className={`${ui.card} ${styles.panel}`} key="link">
                     <label htmlFor="paylink" className={ui.label}>
                       Your payment link
                     </label>
@@ -153,16 +172,16 @@ export function ReceiveClient() {
                       </button>
                     </div>
                     <ul className={styles.notes}>
-                      <li>Share it anywhere: invoices, email, your bio. It never changes.</li>
-                      <li>Each payment still lands in a new address. The payer&apos;s browser makes it.</li>
-                      <li>The payer needs QoreX with fUSD and about 0.6 QOR for fees and gas.</li>
+                      <li>Send it to clients, or put it in your invoice or bio. It never changes.</li>
+                      <li>The payer needs the QoreX app with fUSD and about 0.6 QOR for fees.</li>
                     </ul>
                     <p className={ui.hintLeft}>
-                      Best for many payers, donations and a public profile. For a client who wants to pay from their usual wallet or an exchange, use a stealth address.
+                      A client who pays from another wallet or an exchange needs a stealth address instead.
                     </p>
                   </div>
                 ) : (
                   <form
+                    key="stealth"
                     className={`${ui.card} ${styles.panel}`}
                     onSubmit={(event) => {
                       event.preventDefault();
@@ -191,29 +210,9 @@ export function ReceiveClient() {
                       </span>
                     </label>
                     <button type="submit" className={ui.primary} disabled={busy || label.trim().length === 0}>
-                      {busy ? "Deriving…" : "Make a stealth address"}
+                      {busy ? "Making the address…" : "Make a stealth address"}
                     </button>
-                    <p className={ui.hintLeft} style={{ marginTop: 10 }}>
-                      Made in this browser from your recovery phrase. No transaction, no fee.
-                    </p>
-
-                    {made && (
-                      <div className={styles.made} aria-live="polite">
-                        <QrCode text={made.address} />
-                        <div className={styles.madeText}>
-                          <p className={styles.madeTitle}>Stealth address for {made.label}</p>
-                          <p className={styles.address}>{made.address}</p>
-                          <div className={styles.madeActions}>
-                            <button type="button" className={ui.secondary} onClick={() => copy(made.address, "address")}>
-                              {copied === "address" ? "Copied" : "Copy address"}
-                            </button>
-                            <button type="button" className={ui.textLink} onClick={() => copy(payerNote(made), "note")}>
-                              {copied === "note" ? "Message copied" : `Copy a message for ${made.label}`}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                    <p className={ui.hintLeft}>Made in this browser from your recovery phrase. No transaction, no fee.</p>
                     {error && (
                       <p className={ui.error} role="alert">
                         {error}
@@ -221,64 +220,86 @@ export function ReceiveClient() {
                     )}
                   </form>
                 )}
-              </section>
-
-              <figure className={ui.side}>
-                <span className={`${ui.corner} ${ui.tl}`} aria-hidden="true" />
-                <span className={`${ui.corner} ${ui.tr}`} aria-hidden="true" />
-                <span className={`${ui.corner} ${ui.bl}`} aria-hidden="true" />
-                <span className={`${ui.corner} ${ui.br}`} aria-hidden="true" />
-                <p className={styles.formula}>
-                  P = P<sub>A</sub> + h·G
-                </p>
-                <div className={`${styles.derivation} ${method === "link" ? styles.derivationOn : ""}`}>
-                  <p className={styles.kicker}>Method 1 · payment link</p>
-                  <p className={styles.equation}>h = SHAKE256(ss)</p>
-                  <p className={styles.derivationNote}>ss is sealed by the payer&apos;s browser to your ML-KEM-1024 key.</p>
-                </div>
-                <div className={`${styles.derivation} ${method === "stealth" ? styles.derivationOn : ""}`}>
-                  <p className={styles.kicker}>Method 2 · stealth address</p>
-                  <p className={styles.equation}>h = SHAKE256(pqRoot ‖ i)</p>
-                  <p className={styles.derivationNote}>pqRoot comes from your recovery phrase. i counts your addresses.</p>
-                </div>
-                <figcaption className={ui.caption}>
-                  <span className={ui.captionLabel}>Fig. 8</span>
-                  <span>Same math, different secret. Without h, nobody can connect P to your account, also with a quantum computer.</span>
-                </figcaption>
-              </figure>
-            </div>
-
-            <section aria-labelledby="stealth-title" className={styles.list}>
-              <div className={styles.listHead}>
-                <h2 id="stealth-title" className={styles.listTitle}>
-                  Your stealth addresses
-                </h2>
-                <span className={ui.hintLeft}>Use each address for one client only.</span>
               </div>
-              {stealth.length === 0 ? (
-                <p className={styles.empty}>None yet. Make one for your next client.</p>
-              ) : (
-                <ul className={styles.rows}>
-                  {stealth.map((entry) => {
-                    const { paid, received } = statusOf(entry);
-                    const status = paid.length === 0 ? "Waiting" : paid.length === 1 ? "Paid" : `Paid ${paid.length} times`;
-                    return (
-                      <li key={entry.index} className={styles.row}>
-                        <span className={styles.rowLabel}>{entry.label}</span>
-                        <span className={styles.rowAddress}>{short(entry.address)}</span>
-                        <span>{received}</span>
-                        <span className={`${styles.status} ${paid.length === 0 ? styles.waiting : paid.length > 1 ? styles.reused : ""}`}>{status}</span>
-                        <span className={styles.created}>{new Date(entry.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</span>
-                        {paid.length > 1 && (
-                          <p className={styles.reuseWarning}>Payments to this address are linked to each other. Make a new address for each client.</p>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
+
+              {method === "stealth" && made && (
+                <div id="made" ref={madeRef} className={styles.made} aria-live="polite">
+                  <p className={styles.madeTitle}>Send this to {made.label}</p>
+                  <div className={styles.madeBody}>
+                    <QrCode text={made.address} />
+                    <div className={styles.madeText}>
+                      <p className={styles.address}>{made.address}</p>
+                      <div className={styles.madeActions}>
+                        <button type="button" className={`${ui.primary} ${styles.copy}`} onClick={() => copy(made.address, "address")}>
+                          {copied === "address" ? "Address copied" : "Copy address"}
+                        </button>
+                        <button type="button" className={ui.textLink} onClick={() => copy(payerNote(made), "note")}>
+                          {copied === "note" ? "Message copied" : "Copy a message for the payer"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <p className={ui.hintLeft}>
+                    The payment shows in your inbox. Use this address for {made.label} only.
+                  </p>
+                </div>
               )}
+
+              <section aria-labelledby="stealth-title" className={styles.list}>
+                <div className={styles.listHead}>
+                  <h2 id="stealth-title" className={styles.listTitle}>
+                    Your stealth addresses
+                  </h2>
+                  <span className={ui.hintLeft}>One address for each client.</span>
+                </div>
+                {stealth.length === 0 ? (
+                  <p className={styles.empty}>None yet. Make one for your next client.</p>
+                ) : (
+                  <ul className={styles.rows}>
+                    {stealth.map((entry) => {
+                      const { paid, received } = statusOf(entry);
+                      const status = paid.length === 0 ? "Waiting" : paid.length === 1 ? "Paid" : `Paid ${paid.length} times`;
+                      return (
+                        <li key={entry.index} className={styles.row}>
+                          <span className={styles.rowLabel}>{entry.label}</span>
+                          <span className={`${styles.status} ${paid.length === 0 ? styles.waiting : paid.length > 1 ? styles.reused : ""}`}>{status}</span>
+                          <span className={styles.rowAddress}>{short(entry.address)}</span>
+                          <span className={styles.received}>{received}</span>
+                          {paid.length > 1 && (
+                            <p className={styles.reuseWarning}>Payments to this address are linked to each other. Make a new address for each client.</p>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </section>
             </section>
-          </>
+
+            <figure className={`${ui.side} ${styles.figure}`}>
+              <span className={`${ui.corner} ${ui.tl}`} aria-hidden="true" />
+              <span className={`${ui.corner} ${ui.tr}`} aria-hidden="true" />
+              <span className={`${ui.corner} ${ui.bl}`} aria-hidden="true" />
+              <span className={`${ui.corner} ${ui.br}`} aria-hidden="true" />
+              <p className={styles.formula}>
+                P = P<sub>A</sub> + h·G
+              </p>
+              <div className={`${styles.derivation} ${method === "link" ? styles.derivationOn : ""}`}>
+                <p className={styles.kicker}>Payment link</p>
+                <p className={styles.equation}>h = SHAKE256(ss)</p>
+                <p className={styles.derivationNote}>ss is sealed by the payer&apos;s browser to your ML-KEM-1024 key.</p>
+              </div>
+              <div className={`${styles.derivation} ${method === "stealth" ? styles.derivationOn : ""}`}>
+                <p className={styles.kicker}>Stealth address</p>
+                <p className={styles.equation}>h = SHAKE256(pqRoot ‖ i)</p>
+                <p className={styles.derivationNote}>pqRoot comes from your recovery phrase. i counts your addresses.</p>
+              </div>
+              <figcaption className={ui.caption}>
+                <span className={ui.captionLabel}>Fig. 8</span>
+                <span>Same math, different secret. Without h, nobody can connect P to your account, also with a quantum computer.</span>
+              </figcaption>
+            </figure>
+          </div>
         )}
       </main>
     </>

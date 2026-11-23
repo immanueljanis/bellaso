@@ -35,7 +35,7 @@ interface Phase {
 
 /** The spend of one payment (SPEC section 7.4): transaction 1 registers the one-time key, transaction 2 sends with two signatures. */
 export function SpendClient({ txHash }: { txHash: string }) {
-  const { state, opened } = useVault();
+  const { state, opened, lock } = useVault();
   const vault = state.kind === "open" ? state.vault : null;
   const payment = vault?.payments.find((item) => item.txHash === txHash) ?? null;
   const [recipient, setRecipient] = useState<Recipient | null>(null);
@@ -119,7 +119,17 @@ export function SpendClient({ txHash }: { txHash: string }) {
 
   return (
     <>
-      <SiteHeader nav />
+      <SiteHeader
+        nav
+        action={
+          vault && (
+            <button type="button" className={ui.secondary} onClick={lock}>
+              <span className={ui.long}>Lock vault</span>
+              <span className={ui.short}>Lock</span>
+            </button>
+          )
+        }
+      />
       <main className="page">
         <Link href="/inbox" className={styles.back}>
           ← Inbox
