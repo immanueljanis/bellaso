@@ -16,16 +16,28 @@ export const REST_READ_PREFIXES = [
  * CometBFT JSON-RPC methods the browser may call through `/v1/rpc` (TECH_SPEC section 9.3):
  * what a signing client needs to read an account, simulate, broadcast and wait.
  */
-export const RPC_METHODS = new Set(["status", "abci_info", "abci_query", "broadcast_tx_sync", "tx", "block"]);
+export const RPC_METHODS = new Set(["status", "abci_info", "abci_query", "broadcast_tx_sync", "tx", "tx_search", "block"]);
 
-/** True when a JSON-RPC body (one call or a batch) uses only allowed methods. */
+/** The only `tx_search` query allowed: one transaction by hash. CosmJS `getTx` waits for a broadcast with it. */
+const TX_BY_HASH = /^tx\.hash='[0-9A-Fa-f]{64}'$/;
+
+interface RpcCall {
+  method?: unknown;
+  params?: { query?: unknown };
+}
+
+/** True when one JSON-RPC call uses an allowed method, and a `tx_search` asks for one hash only. */
+function isAllowedCall(call: unknown): boolean {
+  if (typeof call !== "object" || call === null) return false;
+  const { method, params } = call as RpcCall;
+  if (typeof method !== "string" || !RPC_METHODS.has(method)) return false;
+  return method !== "tx_search" || (typeof params?.query === "string" && TX_BY_HASH.test(params.query));
+}
+
+/** True when a JSON-RPC body (one call or a batch of 10 or fewer) uses only allowed calls. */
 export function isAllowedRpcBody(body: unknown): boolean {
   const calls = Array.isArray(body) ? body : [body];
-  return (
-    calls.length > 0 &&
-    calls.length <= 10 &&
-    calls.every((call) => typeof call === "object" && call !== null && RPC_METHODS.has((call as { method?: unknown }).method as string))
-  );
+  return calls.length > 0 && calls.length <= 10 && calls.every(isAllowedCall);
 }
 
 const SAFE_PATH = /^\/[A-Za-z0-9/_.-]*$/;

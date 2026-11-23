@@ -93,6 +93,9 @@ test("isAllowedRpcBody accepts small batches of allowed methods only", () => {
   expect(isAllowedRpcBody(Array.from({ length: 11 }, () => ({ method: "status" })))).toBe(false);
   expect(isAllowedRpcBody("status")).toBe(false);
   expect(isAllowedRpcBody({ method: "tx_search" })).toBe(false);
+  expect(isAllowedRpcBody({ method: "tx_search", params: { query: "tx.height>1" } })).toBe(false);
+  expect(isAllowedRpcBody({ method: "tx_search", params: { query: "tx.hash='" + "AB".repeat(32) + "' OR tx.height>1" } })).toBe(false);
+  expect(isAllowedRpcBody({ method: "tx_search", params: { query: "tx.hash='" + "AB".repeat(32) + "'", page: "1" } })).toBe(true);
 });
 
 test("the rate limit counts each client by X-Real-IP, and a forged X-Forwarded-For does not split it", async () => {
