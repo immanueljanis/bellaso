@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://bellaso.vercel.app"),
   title: { default: "Bellaso · Quantum-safe stealth payments", template: "%s · Bellaso" },
   description:
-    "Quantum-safe stealth payments on QoreChain. Share one payment link, or give each client a stealth address. ML-KEM-1024 hides the receiver, ML-DSA-87 guards the funds.",
+    "Quantum-safe stealth payments on QoreChain. Share one payment link, or give each client a stealth address. ML-KEM-1024 hides the recipient, ML-DSA-87 guards the funds.",
   openGraph: { images: [{ url: "/brand/cover-1600x900.png", width: 1600, height: 900 }] },
   twitter: { card: "summary_large_image", images: ["/brand/cover-1600x900.png"] },
 };

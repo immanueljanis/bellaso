@@ -19,7 +19,7 @@ const TITLES: Record<TxKind, string> = {
 };
 
 const SUMMARIES: Record<TxKind, string> = {
-  payment: "The payer sent funds to a new address and put an announcement on chain. Only the receiver can open it.",
+  payment: "The payer sent funds to a new address and put an announcement on chain. Only the recipient can open it.",
   transfer: "One account sent funds to another.",
   "signing-key": "An account registered its ML-DSA-87 key. From now on, each spend of this account needs two signatures.",
   "kem-key": "An account published its ML-KEM-1024 key in the QoreSeal registry. Payers seal payment secrets to this key.",
@@ -161,11 +161,11 @@ export function TxClient({ hash }: { hash: string }) {
                         </li>
                         <li>
                           <span className={`${ui.mark} ${ui.hidden}`}>hidden</span>
-                          <span>Who receives it. The new address has no public link to the account of the receiver.</span>
+                          <span>Who receives it. The new address has no public link to the account of the recipient.</span>
                         </li>
                         <li>
                           <span className={`${ui.mark} ${ui.hidden}`}>hidden</span>
-                          <span>What the announcement says. Only the ML-KEM-1024 key of the receiver opens it.</span>
+                          <span>What the announcement says. Only the ML-KEM-1024 key of the recipient opens it.</span>
                         </li>
                       </>
                     ) : (
@@ -185,7 +185,7 @@ export function TxClient({ hash }: { hash: string }) {
                     <span className={ui.captionLabel}>Fig. 5</span>
                     <span>
                       {view.kind === "payment"
-                        ? "This is the whole transaction. Nothing in it names the receiver."
+                        ? "This is the whole transaction. Nothing in it names the recipient."
                         : "The event pqc_hybrid_verify shows that the chain checked both signatures."}
                     </span>
                   </figcaption>

@@ -45,7 +45,7 @@ function announcementField(): Point[] {
 }
 
 const FACTS = [
-  ["Receiver hidden with", "ML-KEM-1024 · FIPS 203"],
+  ["Recipient hidden with", "ML-KEM-1024 · FIPS 203"],
   ["Funds spent with", "ML-DSA-87 + secp256k1"],
   ["Keys live in", "Your browser, nowhere else"],
   ["Runs on", "QoreChain testnet"],
@@ -89,8 +89,8 @@ const STEPS = [
 ] as const;
 
 const HIDDEN = [
-  "The link between a payment and the receiver",
-  "The link between two payments to the same receiver",
+  "The link between a payment and the recipient",
+  "The link between two payments to the same recipient",
   "The funds: a spend needs both signatures",
 ];
 
@@ -242,8 +242,8 @@ export default function Home() {
           </p>
           <blockquote className={styles.quote}>“The chain itself is the archive.”</blockquote>
           <div className={styles.twoText}>
-            <p>Stealth payments today hide the receiver with elliptic-curve math. Each payment leaves a record on chain, and the chain keeps every record.</p>
-            <p>A quantum computer can break that math later and match every old payment to its receiver. A leak of privacy cannot be reversed by a fork.</p>
+            <p>Stealth payments today hide the recipient with elliptic-curve math. Each payment leaves a record on chain, and the chain keeps every record.</p>
+            <p>A quantum computer can break that math later and match every old payment to its recipient. A leak of privacy cannot be reversed by a fork.</p>
           </div>
           <p className={styles.source}>ethresear.ch, March 2026 · L2BEAT rates ECDH stealth payments “Exposed” to a future adversary</p>
         </section>
