@@ -1,6 +1,6 @@
 import { mlkemDecapsulate, mlkemEncapsulate } from "@qorechain/qoreseal";
 import type { Announcement } from "./announcement";
-import { addressOf, paymentPqSeed, spendTweak, tweakPrivateKey, tweakPublicKey, viewTag } from "./derive";
+import { addressOf, addressTweak, paymentPqSeed, spendTweak, tweakPrivateKey, tweakPublicKey, viewTag } from "./derive";
 
 export interface PaymentTarget extends Announcement {
   /** The one-time address that receives the payment. */
@@ -62,4 +62,9 @@ export function openAnnouncement(
   const address = addressOf(tweakPublicKey(keys.publicKey, h), prefix);
   if (address !== destination) return null;
   return { address, privateKey: tweakPrivateKey(keys.privateKey, h), pqSeed: paymentPqSeed(keys.pqRoot, sharedSecret) };
+}
+
+/** Method 2 (TECH_SPEC section 4.6): the stealth address with index `i` of the recipient. No transaction occurs. */
+export function stealthAddress(recipientPublicKey: Uint8Array, pqRoot: Uint8Array, index: number, prefix = "qor"): string {
+  return addressOf(tweakPublicKey(recipientPublicKey, addressTweak(pqRoot, index)), prefix);
 }

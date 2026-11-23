@@ -20,6 +20,7 @@ import {
   tweakPublicKey,
   viewTag,
   type RecipientKeys,
+  stealthAddress,
 } from "../src";
 
 /** A random recipient: account A, its ML-KEM-1024 key pair and a post-quantum root secret. */
@@ -52,6 +53,8 @@ describe("test vectors (TECH_SPEC sections 4.2 to 4.6)", () => {
   test("method 2 derivations are fixed", () => {
     expect(addressOf(tweakPublicKey(pub, addressTweak(root, 0)))).toBe("qor1efmuqzzz6vnc4532dtl9ujja7hv034mammk8m6");
     expect(addressOf(tweakPublicKey(pub, addressTweak(root, 7)))).toBe("qor1namj8zq4xnpq4tpzp3uu5wsx5f5lqm2xax4n60");
+    expect(stealthAddress(pub, root, 0)).toBe("qor1efmuqzzz6vnc4532dtl9ujja7hv034mammk8m6");
+    expect(stealthAddress(pub, root, 7)).toBe("qor1namj8zq4xnpq4tpzp3uu5wsx5f5lqm2xax4n60");
     expect(bytesToHex(addressPqSeed(root, 0))).toBe("bd3b95430fd5cdbf8b34f379e54b60a1930d50adae5b053760233040b4f07a00");
   });
 });

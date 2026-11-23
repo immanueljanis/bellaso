@@ -1,5 +1,5 @@
 import { parseArgs } from "node:util";
-import { addressOf, addressTweak, tweakPublicKey } from "@bellaso/core";
+import { stealthAddress } from "@bellaso/core";
 import { type SearchedTxWithEvents, TESTNET, searchTxs } from "@bellaso/chain";
 import { deriveNativeAccount } from "@qorechain/sdk";
 import { type Match, type PublicView, linkHeuristics } from "./lib/link";
@@ -45,9 +45,7 @@ async function truePaymentsOf(account: string) {
   const { address, keys } = await recipientFromEnv();
   if (address !== account) throw new Error(`RECIPIENT_MNEMONIC belongs to ${address}, not to the attacked account ${account}`);
   const found = await scanChain(announcementContract(), keys);
-  const stealth = Array.from({ length: STEALTH_INDEXES }, (_, index) =>
-    addressOf(tweakPublicKey(keys.publicKey, addressTweak(keys.pqRoot, index))),
-  );
+  const stealth = Array.from({ length: STEALTH_INDEXES }, (_, index) => stealthAddress(keys.publicKey, keys.pqRoot, index));
   return { found: found.length, truth: new Set([...found.map((payment) => payment.address), ...stealth]) };
 }
 
