@@ -67,6 +67,7 @@ export function ReceiveClient() {
 
   useEffect(() => {
     setOrigin(window.location.origin);
+    if (window.location.hash === "#stealth") setMethod("stealth");
     fetchTransfers()
       .then(setTransfers)
       .catch(() => setTransfers(null));
@@ -137,7 +138,7 @@ export function ReceiveClient() {
       />
       <main className="page">
         <h1>Get paid</h1>
-        <p className={ui.lede}>Each payment lands in a new address that nobody can link to you, today or after Q-Day.</p>
+        <p className={ui.lede}>Each payment lands in a new address that no chain observer can link to you, today or after Q-Day.</p>
 
         {!vault ? (
           <div style={{ marginTop: 40 }}>

@@ -50,6 +50,36 @@ const FACTS = [
   ["Runs on", "QoreChain testnet"],
 ] as const;
 
+/** The two payment methods (SPEC section 2.2): the hero names them, the methods section explains them. */
+const METHODS = [
+  {
+    kicker: "Method 1",
+    title: "Payment link",
+    short: "One link for every payer. They pay with QoreX.",
+    facts: [
+      ["The payer uses", "QoreX, with one signature"],
+      ["On chain", "A transfer to a new address, and 1,568 bytes of ML‑KEM‑1024 ciphertext"],
+      ["The new address comes from", "A secret that the payer seals to your ML‑KEM‑1024 key. Only your key opens it."],
+      ["Best for", "Many payers, a public page"],
+    ],
+    href: "/receive",
+    action: "Get my payment link",
+  },
+  {
+    kicker: "Method 2",
+    title: "Stealth address",
+    short: "One address for each client. They pay from any wallet.",
+    facts: [
+      ["The payer uses", "Any wallet, with a normal transfer"],
+      ["On chain", "A normal transfer, and nothing more"],
+      ["The new address comes from", "Your post-quantum root secret and a counter. The secret never leaves your browser."],
+      ["Best for", "One client or one invoice"],
+    ],
+    href: "/receive#stealth",
+    action: "Make a stealth address",
+  },
+] as const;
+
 const STEPS = [
   ["Rina publishes a key", "Her ML-KEM-1024 public key goes into the QoreSeal registry. Her link points to that key, not to a balance."],
   ["The payer seals a secret to it", "The browser of the payer makes a shared secret and 1,568 bytes of ciphertext. The secret gives a brand new address."],
@@ -86,7 +116,7 @@ const COMPARED = {
   ],
 } as const;
 
-/** The landing page (design canvas, Main board): one live figure, the two methods, the honest limits and the comparison. */
+/** The landing page (design canvas, Main board): the two methods first, one live figure, the honest limits and the comparison. */
 export default function Home() {
   const points = announcementField();
   return (
@@ -94,6 +124,7 @@ export default function Home() {
       <SiteHeader
         action={
           <nav aria-label="Sections" className={styles.sections}>
+            <a href="#methods">Two methods</a>
             <a href="#how">How it works</a>
             <a href="#public">What stays public</a>
             <a href="#compared">Compared</a>
@@ -107,11 +138,19 @@ export default function Home() {
       <main className={styles.landing}>
         <section className={styles.hero}>
           <div>
-            <h1 className={`${styles.heroTitle} ${styles.up}`}>Private payment links that stay private after Q-Day.</h1>
+            <h1 className={`${styles.heroTitle} ${styles.up}`}>Quantum-safe stealth payments.</h1>
             <p className={`${styles.heroLede} ${styles.up} ${styles.u1}`}>
-              Share one link. Every payment lands in a new account that only you can find and spend. Sealed with ML-KEM-1024, spent with
-              ML-DSA-87, keys never leave your browser.
+              No chain observer can link a payment to you, today or after Q-Day. Get paid in two ways:
             </p>
+            <ul className={`${styles.heroMethods} ${styles.up} ${styles.u1}`}>
+              {METHODS.map((method) => (
+                <li key={method.title}>
+                  <span className={styles.kicker}>{method.kicker}</span>
+                  <span className={styles.heroMethodTitle}>{method.title}</span>
+                  <span className={styles.heroMethodText}>{method.short}</span>
+                </li>
+              ))}
+            </ul>
             <div className={`${styles.actions} ${styles.up} ${styles.u2}`}>
               <Link href="/create" className={styles.cta}>
                 Create my Bellaso <span className={styles.arrow}>→</span>
@@ -169,6 +208,35 @@ export default function Home() {
           ))}
         </dl>
 
+        <section id="methods" className={`${styles.section} ${styles.reveal}`} aria-labelledby="methods-title">
+          <h2 id="methods-title" className={styles.h2}>
+            Two methods, both quantum-safe
+          </h2>
+          <p className={styles.lede}>
+            Each payment lands in a new one-time account. The methods differ in how the payer pays and where the new address comes from. Every
+            spend needs two signatures: secp256k1 and {"ML‑DSA‑87"}.
+          </p>
+          <div className={styles.methods}>
+            {METHODS.map((method) => (
+              <article key={method.title} className={styles.method}>
+                <p className={styles.kicker}>{method.kicker}</p>
+                <h3 className={styles.methodTitle}>{method.title}</h3>
+                <dl className={styles.methodFacts}>
+                  {method.facts.map(([term, value]) => (
+                    <div key={term}>
+                      <dt>{term}</dt>
+                      <dd>{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <Link href={method.href} className={styles.textLink}>
+                  {method.action} <span className={styles.arrow}>→</span>
+                </Link>
+              </article>
+            ))}
+          </div>
+        </section>
+
         <section className={`${styles.section} ${styles.reveal}`} aria-labelledby="problem">
           <p id="problem" className={styles.kicker}>
             The problem
@@ -179,27 +247,6 @@ export default function Home() {
             <p>A quantum computer can break that math later and match every old payment to its receiver. A leak of privacy cannot be reversed by a fork.</p>
           </div>
           <p className={styles.source}>ethresear.ch, March 2026 · L2BEAT rates ECDH stealth payments “Exposed” to a future adversary</p>
-        </section>
-
-        <section className={`${styles.section} ${styles.reveal}`} aria-labelledby="methods">
-          <h2 id="methods" className={styles.h2}>
-            Two ways to get paid
-          </h2>
-          <div className={styles.methods}>
-            {(
-              [
-                ["Method 1", "Payment link", "One link for everyone. The payer opens it and pays with QoreX. Their browser seals a brand new address for you.", "payer needs QoreX · best for many payers"],
-                ["Method 2", "Stealth address", "Make a new address for one client. They pay from any wallet with a normal transfer. Nothing but the transfer goes on chain.", "payer needs any wallet · one address per client"],
-              ] as const
-            ).map(([kicker, title, body, note]) => (
-              <article key={title} className={styles.method}>
-                <p className={styles.kicker}>{kicker}</p>
-                <h3 className={styles.methodTitle}>{title}</h3>
-                <p>{body}</p>
-                <p className={styles.note}>{note}</p>
-              </article>
-            ))}
-          </div>
         </section>
 
         <section id="how" className={`${styles.section} ${styles.reveal}`} aria-labelledby="how-title">
@@ -305,7 +352,7 @@ export default function Home() {
             </h2>
             <p>
               In 1553 Giovan Battista Bellaso published a cipher with a key. History gave the credit to Vigenère. It seemed the right name for payments
-              that nobody can trace back to you.
+              that no chain observer can trace back to you.
             </p>
           </div>
         </section>

@@ -14,8 +14,9 @@ const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variabl
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://bellaso.vercel.app"),
-  title: { default: "Bellaso", template: "%s · Bellaso" },
-  description: "Private payment links that stay private after Q-Day.",
+  title: { default: "Bellaso · Quantum-safe stealth payments", template: "%s · Bellaso" },
+  description:
+    "Quantum-safe stealth payments on QoreChain. Share one payment link, or give each client a stealth address. ML-KEM-1024 hides the receiver, ML-DSA-87 guards the funds.",
   openGraph: { images: [{ url: "/brand/cover-1600x900.png", width: 1600, height: 900 }] },
   twitter: { card: "summary_large_image", images: ["/brand/cover-1600x900.png"] },
 };

@@ -55,8 +55,42 @@
   text-wrap: pretty;
 }
 
+.heroMethods {
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 560px;
+  border-top: 1px solid oklch(0.94 0.008 95 / 0.14);
+}
+
+.heroMethods li {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 24px 0 0;
+}
+
+.heroMethods li + li {
+  padding: 18px 0 0 24px;
+  border-left: 1px solid oklch(0.94 0.008 95 / 0.14);
+}
+
+.heroMethodTitle {
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(26px, 2.6vw, 32px);
+  line-height: 1.1;
+}
+
+.heroMethodText {
+  font-size: 15px;
+  color: var(--chalk-muted);
+  text-wrap: pretty;
+}
+
 .actions {
-  margin-top: 40px;
+  margin-top: 36px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -279,28 +313,40 @@
 }
 
 .method {
+  display: flex;
+  flex-direction: column;
   padding: 28px;
   border: 1px solid oklch(0.94 0.008 95 / 0.16);
   border-radius: 2px;
-}
-
-.method p {
-  margin: 10px 0 0;
-  font-size: 16px;
 }
 
 .methodTitle {
   margin: 8px 0 0;
   font-family: var(--font-display), Georgia, serif;
   font-weight: 400;
-  font-size: 32px;
+  font-size: clamp(32px, 3.4vw, 40px);
 }
 
-.method .note {
-  margin-top: 18px;
-  font-family: var(--font-mono), monospace;
-  font-size: 12px;
+.method > a {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+.methodFacts {
+  margin: 22px 0 26px;
+  display: grid;
+  gap: 14px;
+}
+
+.methodFacts dt {
+  font-size: 13px;
   color: var(--chalk-muted);
+}
+
+.methodFacts dd {
+  margin: 3px 0 0;
+  font-size: 16px;
+  text-wrap: pretty;
 }
 
 .journey {
@@ -523,6 +569,18 @@
 
   .long {
     display: none;
+  }
+
+  .heroMethods li {
+    padding-right: 16px;
+  }
+
+  .heroMethods li + li {
+    padding-left: 16px;
+  }
+
+  .heroMethodTitle {
+    font-size: 24px;
   }
 
   .short {
