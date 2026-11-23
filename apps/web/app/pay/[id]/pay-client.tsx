@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { toBaseUnits } from "@/src/amount";
 import { type RecipientPublicData, loadRecipient } from "@/src/gateway";
 import { type PaymentPlan, GAS_ALLOWANCE_UQOR, PAYMENT_GAS_LIMIT, planPayment } from "@/src/payment";
-import { type QorexSignAndBroadcastResult, connectQorex, qorexNative } from "@/src/qorex";
+import { type QorexSignAndBroadcastResult, connectQorex, explainQorexError, qorexNative } from "@/src/qorex";
 import styles from "./pay.module.css";
 
 const TOKENS = [
@@ -52,7 +52,7 @@ export function PayClient({ recipient }: { recipient: string }) {
       setPayer(await connectQorex(TESTNET.chainId));
       setStage("connected");
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : String(reason));
+      setError(explainQorexError(reason));
     }
   }
 
@@ -73,7 +73,7 @@ export function PayClient({ recipient }: { recipient: string }) {
       setResult(sent);
       setStage("done");
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : String(reason));
+      setError(explainQorexError(reason));
       setStage("connected");
     }
   }
@@ -159,7 +159,7 @@ export function PayClient({ recipient }: { recipient: string }) {
                 <button type="button" className={styles.primary} onClick={connect} disabled={!hasQorex}>
                   Connect QoreX
                 </button>
-                {!hasQorex && <p className={styles.hint}>Install the QoreX extension in this browser to pay.</p>}
+                {!hasQorex && <p className={styles.hint}>Open this page in the QoreX app (dApp browser, testnet on) to pay.</p>}
               </>
             )}
             {stage === "connected" && (

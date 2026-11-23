@@ -38,6 +38,20 @@ export function qorexNative(): QorexNativeProvider | null {
   return native;
 }
 
+/**
+ * A message a person can act on for a QoreX error. QoreX refuses a request for another
+ * network than the active one, and only the user can switch it (mobile: Settings › Use
+ * testnet (developers); the extension has no testnet switch).
+ */
+export function explainQorexError(reason: unknown): string {
+  const message = reason instanceof Error ? reason.message : String(reason);
+  if (/does not match the active network|unsupported chain/i.test(message)) {
+    return "QoreX is on mainnet. Bellaso runs on testnet: in the QoreX app, open Settings › Use testnet (developers), then try again.";
+  }
+  if (/reject|denied|cancel/i.test(message)) return "You cancelled the request in QoreX. Nothing was sent.";
+  return message;
+}
+
 /** Asks QoreX to connect to `chainId` and returns the payer address. */
 export async function connectQorex(chainId: string): Promise<string> {
   const native = qorexNative();
