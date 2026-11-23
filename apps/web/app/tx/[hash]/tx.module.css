@@ -1,0 +1,76 @@
+.status {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+}
+
+.ok {
+  color: var(--blue-chalk);
+}
+
+.failed {
+  color: var(--orange-chalk);
+}
+
+.transfer {
+  margin-top: 20px;
+}
+
+.amount {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-size: clamp(32px, 5vw, 44px);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.route {
+  margin: 18px 0 0;
+  display: grid;
+  gap: 12px;
+}
+
+.route dt {
+  font-size: 13px;
+  color: var(--chalk-muted);
+}
+
+.route dd {
+  margin: 2px 0 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 14px;
+  word-break: break-all;
+}
+
+.facts {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.facts dd {
+  text-wrap: pretty;
+}
+
+.event {
+  font-family: var(--font-mono), monospace;
+  color: var(--blue-chalk);
+}
+
+.raw {
+  margin: 24px 0 0;
+  font-size: 14px;
+}
+
+.seen {
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-size: 15px;
+}
+
+.seen li {
+  display: flex;
+  gap: 12px;
+}

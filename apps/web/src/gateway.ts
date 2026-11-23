@@ -38,4 +38,7 @@ export async function loadRecipient(address: string): Promise<RecipientPublicDat
 }
 
 /** A transaction as raw JSON through the gateway. No explorer for `qorechain-diana` is confirmed yet. */
-export const txUrl = (hash: string) => `${GATEWAY_URL}/v1/lcd/cosmos/tx/v1beta1/txs/${hash}`;
+export const rawTxUrl = (hash: string) => `${GATEWAY_URL}/v1/lcd/cosmos/tx/v1beta1/txs/${hash}`;
+
+/** The readable page of a transaction (`app/tx/[hash]`). It reads `rawTxUrl` and links to it. */
+export const txUrl = (hash: string) => `/tx/${hash}`;
