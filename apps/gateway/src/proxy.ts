@@ -28,10 +28,14 @@ export function isAllowedRpcBody(body: unknown): boolean {
   );
 }
 
-const SAFE_PATH = /^\/[A-Za-z0-9/_.:%-]*$/;
+const SAFE_PATH = /^\/[A-Za-z0-9/_.-]*$/;
 
-/** True when `path` is an allowed REST read. Refuses `..` segments and characters outside a plain path. */
+/**
+ * True when `path` is an allowed REST read. Refuses `.` and `..` segments and every character
+ * outside a plain path, `%` included: the upstream decodes `%2f` and `%2e`, so an encoded
+ * segment could climb out of an allowed prefix (MEASURED on 23 Nov 2026, now refused).
+ */
 export function isAllowedRestRead(path: string): boolean {
-  if (!SAFE_PATH.test(path) || path.split("/").includes("..")) return false;
+  if (!SAFE_PATH.test(path) || path.split("/").some((segment) => segment === ".." || segment === ".")) return false;
   return REST_READ_PREFIXES.some((prefix) => path.startsWith(prefix));
 }

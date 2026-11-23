@@ -105,3 +105,34 @@ test("the rate limit counts each client by X-Real-IP, and a forged X-Forwarded-F
   expect((await hit({ "x-real-ip": "198.51.100.9" })).statusCode).toBe(200);
   await app.close();
 });
+
+test("the REST relay refuses percent-encoded traversal and forwards no query string", async () => {
+  const calls: string[] = [];
+  const app = await buildApp(config, { fetch: fakeFetch(calls) });
+  const encoded = await app.inject({ method: "GET", url: "/v1/lcd/cosmos/bank/v1beta1/balances/qor1x%2f..%2f..%2fsupply" });
+  expect(encoded.statusCode).toBe(403);
+  const dots = await app.inject({ method: "GET", url: "/v1/lcd/qorechain/pqc/v1/%2e%2e/%2e%2e/cosmos/bank/v1beta1/supply" });
+  expect(dots.statusCode).toBe(403);
+  const query = await app.inject({ method: "GET", url: "/v1/lcd/cosmos/bank/v1beta1/balances/qor1abc?pagination.limit=1000000" });
+  expect(query.statusCode).toBe(200);
+  expect(calls).toEqual(["https://rest.example/cosmos/bank/v1beta1/balances/qor1abc"]);
+  expect(query.headers["content-type"]).toContain("application/json");
+  await app.close();
+});
+
+test("every answer carries the security headers, and a failure hides its cause", async () => {
+  const app = await buildApp(config, {
+    fetch: (async () => {
+      throw new Error("connect ECONNREFUSED 10.0.0.1:1317");
+    }) as unknown as typeof fetch,
+  });
+  const health = await app.inject({ method: "GET", url: "/v1/health" });
+  expect(health.headers["x-content-type-options"]).toBe("nosniff");
+  expect(health.headers["content-security-policy"]).toBe("default-src 'none'; frame-ancestors 'none'");
+  expect(health.headers["referrer-policy"]).toBe("no-referrer");
+  const failed = await app.inject({ method: "GET", url: "/v1/lcd/qorechain/pqc/v1/kem/qor1abc" });
+  expect(failed.statusCode).toBe(502);
+  expect(failed.body).not.toContain("ECONNREFUSED");
+  expect(failed.json()).toEqual({ error: "The chain did not answer. Try again in a minute." });
+  await app.close();
+});

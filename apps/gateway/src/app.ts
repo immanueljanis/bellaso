@@ -52,6 +52,17 @@ export async function buildApp(config: GatewayConfig, deps: GatewayDeps = { fetc
     bodyLimit: MAX_BODY,
     ajv: { customOptions: { removeAdditional: false } },
   });
+  app.addHook("onSend", async (_request, reply, payload) => {
+    reply.header("x-content-type-options", "nosniff");
+    reply.header("content-security-policy", "default-src 'none'; frame-ancestors 'none'");
+    reply.header("referrer-policy", "no-referrer");
+    return payload;
+  });
+  app.setErrorHandler((error: { statusCode?: number; message: string }, _request, reply) => {
+    const status = error.statusCode ?? 500;
+    if (status < 500) return reply.code(status).send({ error: error.message });
+    return reply.code(502).send({ error: "The chain did not answer. Try again in a minute." });
+  });
   await app.register(cors, { origin: config.allowedOrigins });
   const clientIp = (request: FastifyRequest): string => {
     const value = config.clientIpHeader ? request.headers[config.clientIpHeader] : undefined;
@@ -78,14 +89,11 @@ export async function buildApp(config: GatewayConfig, deps: GatewayDeps = { fetc
     const url = new URL(request.url, "http://gateway");
     const path = url.pathname.startsWith("/v1/lcd/") ? url.pathname.slice("/v1/lcd".length) : "";
     if (!isAllowedRestRead(path)) return reply.code(403).send({ error: "This path is not allowed" });
-    const upstream = await deps.fetch(`${config.chainRest}${path}${url.search}`, {
+    const upstream = await deps.fetch(`${config.chainRest}${path}`, {
       headers: { accept: "application/json" },
       signal: AbortSignal.timeout(15_000),
     });
-    return reply
-      .code(upstream.status)
-      .type(upstream.headers.get("content-type") ?? "application/json")
-      .send(await upstream.text());
+    return reply.code(upstream.status).type("application/json").send(await upstream.text());
   });
 
   app.post("/v1/rpc", async (request, reply) => {
