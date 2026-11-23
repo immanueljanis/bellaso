@@ -23,6 +23,17 @@
   box-sizing: border-box;
 }
 
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: url("/brand/chalk-dust.svg");
+  background-size: 320px 320px;
+  opacity: 0.16;
+  pointer-events: none;
+}
+
 body {
   margin: 0;
   background: var(--board);
@@ -76,6 +87,12 @@ h1 {
 .mono {
   font-family: var(--font-mono), monospace;
   font-size: 13px;
+}
+
+@media (max-width: 520px) {
+  .page {
+    padding: 48px 16px 72px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

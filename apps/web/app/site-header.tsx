@@ -21,7 +21,7 @@ export function SiteHeader({ nav = false, action }: { nav?: boolean; action?: Re
         <span className={ui.spacer} />
         <span className={ui.pill}>
           <span className={ui.dot} aria-hidden="true" />
-          Testnet · {TESTNET.chainId}
+          Testnet<span className={ui.pillChain}> · {TESTNET.chainId}</span>
         </span>
         {action}
       </div>
