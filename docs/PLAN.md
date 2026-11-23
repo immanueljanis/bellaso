@@ -48,19 +48,19 @@ B. Web
 - [x] B6 `/inbox`: scan in the browser from `/v1/announcements` and `/v1/transfers`
 - [x] B7 `/spend`: two transactions, link warnings
 - [x] B8 `/receive`: payment link and stealth addresses (method 2)
-- [ ] B9 Landing page from the design canvas; receipt polish. In progress.
+- [x] B9 Landing page from the design canvas; the receipt links to the raw transaction
 
 C. Proof
 - [x] C10 `link-attempt.ts` (AC6). Pass on the clean account `qor130jx…`.
-- [ ] C11 Demo data: 20 or more payments to 2 or more recipients (AC4). It needs more test QOR: the CLI payer has about 2.5 QOR and the sponsor wallet about 0.79 QOR.
+- [ ] C11 Demo data: 20 or more payments to 2 or more recipients (AC4). Now 13 announcements: 7 to account A, 6 to qor130jx…. `scan.ts` finds 7 with 0 false positives, and chain and gateway outputs are identical (MEASURED). It needs more test QOR: the CLI payer has about 0.84 QOR and the sponsor wallet about 0.79 QOR.
 - [ ] C12 Gates G8 (browser through the gateway) and G9 (normal wallets, method 2). G8 pass. G9 partial: the QoreX mobile **Send** and the EVM wallet are not tested yet.
 - [x] C13 `scan.ts --source gateway` equals `--source chain` (AC10)
 
 D. Submission
-- [ ] D14 Final README with the architecture diagram
+- [x] D14 Final README with the architecture diagram
 - [ ] D15 Final `docs/THREAT_MODEL.md`
-- [ ] D16 `AI_USAGE.md`
-- [ ] D17 Cover image 1200×675 or larger
+- [x] D16 `AI_USAGE.md`
+- [x] D17 Cover image 1200×675 or larger: `apps/web/public/brand/cover-1600x900.png`, also the Open Graph image
 - [ ] D18 Video, 3 minutes or less
 - [ ] D19 X posts with #BuildBeforeQDay
 - [ ] D20 Make the repository public

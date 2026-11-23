@@ -170,7 +170,7 @@ Each step first reads the chain and skips the work that is already done. Thus an
 1. Open the link. The app reads the secp256k1 public key and the KEM key of account A from the chain, through the Bellaso gateway.
 2. Type the amount of fUSD. The app calculates the one-time address in the browser.
 3. Connect QoreX. Sign **one native transaction**. The transaction sends the fUSD and a QOR gas allowance to the one-time address. It also writes the announcement as 7 short records into the Bellaso announcement contract. `docs/TECH_SPEC.md` sections 5 and 7.2 give the details. The fee was 0.457 QOR through QoreX in gate G4 (MEASURED), because QoreX sets the gas limit itself. The payer also sends the 0.15 QOR allowance, so a payment costs the payer about 0.61 QOR on top of the amount.
-4. The receipt page shows: "Paid to a fresh address. Nobody can link it to this link, now or after Q-Day." It also shows the one-time address. No testnet explorer is confirmed (`docs/TECH_SPEC.md` section 13).
+4. The receipt page shows: "Paid to a fresh address. Nobody can link it to this link, now or after Q-Day." It also shows the one-time address and a link to the raw transaction through the gateway. No testnet explorer is confirmed (`docs/TECH_SPEC.md` section 13).
 
 ### 7.3 Recipient: inbox
 

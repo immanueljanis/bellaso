@@ -28,7 +28,6 @@ const fromBase64 = (text: string) => Uint8Array.from(atob(text), (char) => char.
 /**
  * Every page of a gateway feed, in height order. The request has no address, so the
  * gateway cannot tell whose inbox asks (THREAT_MODEL R7).
- * ponytail: a block split across a page boundary loses its tail; fine below 500 items per block.
  */
 async function readFeed<T extends { height: number }>(path: string): Promise<T[] | null> {
   const all: T[] = [];
