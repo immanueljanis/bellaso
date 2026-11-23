@@ -36,3 +36,6 @@ export async function loadRecipient(address: string): Promise<RecipientPublicDat
   if (!kem.found || !kem.key) throw new Error("This account has no encryption key in the QoreSeal registry.");
   return { publicKey, kemPublicKey: fromBase64(kem.key.public_key) };
 }
+
+/** A transaction as raw JSON through the gateway. No explorer for `qorechain-diana` is confirmed yet. */
+export const txUrl = (hash: string) => `${GATEWAY_URL}/v1/lcd/cosmos/tx/v1beta1/txs/${hash}`;

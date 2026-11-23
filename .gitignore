@@ -16,3 +16,4 @@ data/
 .DS_Store
 Thumbs.db
 .vercel
+.claude/worktrees/

@@ -30,6 +30,9 @@
       "dependencies": {
         "@bellaso/chain": "workspace:*",
         "@bellaso/core": "workspace:*",
+        "@qorechain/qoreseal": "0.1.0",
+        "@qorechain/sdk": "0.14.0",
+        "@scure/bip39": "2.4.0",
         "cosmjs-types": "0.11.0",
         "next": "^16.4.6",
         "react": "^19.3.1",

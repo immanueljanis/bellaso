@@ -1,12 +1,13 @@
 "use client";
 
 import { TESTNET } from "@bellaso/chain";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toBaseUnits } from "@/src/amount";
 import { type RecipientPublicData, loadRecipient } from "@/src/gateway";
 import { type PaymentPlan, GAS_ALLOWANCE_UQOR, PAYMENT_GAS_LIMIT, QOREX_PAYMENT_FEE_QOR, planPayment } from "@/src/payment";
 import { type QorexSignAndBroadcastResult, connectQorex, explainQorexError, qorexNative } from "@/src/qorex";
+import { SiteHeader } from "../../site-header";
+import ui from "../../ui.module.css";
 import styles from "./pay.module.css";
 
 const TOKENS = [
@@ -92,34 +93,23 @@ export function PayClient({ recipient }: { recipient: string }) {
 
   return (
     <>
-      <header className={styles.header}>
-        <div className={styles.headerInner}>
-          <Link href="/" className={styles.wordmark}>
-            Bellaso
-          </Link>
-          <span className={styles.spacer} />
-          <span className={styles.pill}>
-            <span className={styles.dot} aria-hidden="true" />
-            Testnet · {TESTNET.chainId}
-          </span>
-        </div>
-      </header>
+      <SiteHeader />
 
-      <main className={styles.main}>
-        <section className={styles.form} aria-labelledby="pay-title">
-          <h1 id="pay-title" className={styles.title}>
+      <main className={ui.main}>
+        <section className={ui.form} aria-labelledby="pay-title">
+          <h1 id="pay-title" className={ui.title}>
             Pay
           </h1>
-          <p className={styles.meta}>{recipient}</p>
+          <p className={ui.meta}>{recipient}</p>
 
-          <div className={styles.card}>
-            <label htmlFor="amount" className={styles.label}>
+          <div className={ui.card}>
+            <label htmlFor="amount" className={ui.label}>
               Amount
             </label>
             <div className={styles.amountRow}>
               <input
                 id="amount"
-                className={`${styles.field} ${styles.amount}`}
+                className={`${ui.field} ${styles.amount}`}
                 inputMode="decimal"
                 autoComplete="off"
                 value={amountText}
@@ -131,7 +121,7 @@ export function PayClient({ recipient }: { recipient: string }) {
               </label>
               <select
                 id="token"
-                className={`${styles.field} ${styles.token}`}
+                className={`${ui.field} ${styles.token}`}
                 value={symbol}
                 onChange={(event) => setSymbol(event.target.value as typeof symbol)}
                 disabled={stage === "signing" || stage === "done"}
@@ -142,7 +132,7 @@ export function PayClient({ recipient }: { recipient: string }) {
               </select>
             </div>
 
-            <dl className={styles.facts}>
+            <dl className={ui.facts}>
               <dt>The recipient gets</dt>
               <dd>
                 {amount ? amountText : "0"} {symbol}
@@ -153,32 +143,32 @@ export function PayClient({ recipient }: { recipient: string }) {
               <dd>about {QOREX_PAYMENT_FEE_QOR} QOR</dd>
             </dl>
 
-            {stage === "loading" && <p className={styles.hint}>Reading the recipient’s keys from QoreChain…</p>}
+            {stage === "loading" && <p className={ui.hint}>Reading the recipient’s keys from QoreChain…</p>}
             {stage === "ready" && (
               <>
-                <button type="button" className={styles.primary} onClick={connect} disabled={!hasQorex}>
+                <button type="button" className={ui.primary} onClick={connect} disabled={!hasQorex}>
                   Connect QoreX
                 </button>
-                {!hasQorex && <p className={styles.hint}>Open this page in the QoreX app (dApp browser, testnet on) to pay.</p>}
+                {!hasQorex && <p className={ui.hint}>Open this page in the QoreX app (dApp browser, testnet on) to pay.</p>}
               </>
             )}
             {stage === "connected" && (
               <>
-                <button type="button" className={styles.primary} onClick={pay} disabled={!amount}>
+                <button type="button" className={ui.primary} onClick={pay} disabled={!amount}>
                   Pay {amount ? amountText : ""} {symbol} with QoreX →
                 </button>
-                <p className={styles.hint}>Connected as {payer ? short(payer) : ""}. You sign one transaction.</p>
+                <p className={ui.hint}>Connected as {payer ? short(payer) : ""}. You sign one transaction.</p>
               </>
             )}
 
             {steps.length > 0 && (
-              <ol className={styles.steps} aria-live="polite">
+              <ol className={ui.steps} aria-live="polite">
                 {steps.map((step) => (
-                  <li key={step.label} className={styles.step}>
-                    <span className={`${styles.stepIcon} ${step.done ? styles.stepDone : styles.stepActive}`} aria-hidden="true" />
+                  <li key={step.label} className={ui.step}>
+                    <span className={`${ui.stepIcon} ${step.done ? ui.stepDone : ui.stepActive}`} aria-hidden="true" />
                     <div>
-                      <p className={styles.stepLabel}>{step.label}</p>
-                      <p className={styles.stepDetail}>{step.detail}</p>
+                      <p className={ui.stepLabel}>{step.label}</p>
+                      <p className={ui.stepDetail}>{step.detail}</p>
                     </div>
                   </li>
                 ))}
@@ -186,48 +176,48 @@ export function PayClient({ recipient }: { recipient: string }) {
             )}
 
             {stage === "done" && result && plan && (
-              <div className={styles.done}>
-                <p className={styles.doneTitle}>Paid to a fresh address.</p>
+              <div className={ui.done}>
+                <p className={ui.doneTitle}>Paid to a fresh address.</p>
                 <p>Nobody can link it to this link, now or after Q-Day.</p>
-                <p className={styles.stepDetail}>
+                <p className={ui.stepDetail}>
                   {plan.target.address} · shield {result.shield}
                 </p>
               </div>
             )}
 
             {error && (
-              <p className={styles.error} role="alert">
+              <p className={ui.error} role="alert">
                 {error}
               </p>
             )}
           </div>
         </section>
 
-        <figure className={styles.figure}>
-          <span className={`${styles.corner} ${styles.tl}`} aria-hidden="true" />
-          <span className={`${styles.corner} ${styles.tr}`} aria-hidden="true" />
-          <span className={`${styles.corner} ${styles.bl}`} aria-hidden="true" />
-          <span className={`${styles.corner} ${styles.br}`} aria-hidden="true" />
-          <h2 className={styles.figureTitle}>What the chain will see</h2>
+        <figure className={ui.figure}>
+          <span className={`${ui.corner} ${ui.tl}`} aria-hidden="true" />
+          <span className={`${ui.corner} ${ui.tr}`} aria-hidden="true" />
+          <span className={`${ui.corner} ${ui.bl}`} aria-hidden="true" />
+          <span className={`${ui.corner} ${ui.br}`} aria-hidden="true" />
+          <h2 className={ui.figureTitle}>What the chain will see</h2>
           <ul className={styles.seen}>
             <li>
-              <span className={`${styles.mark} ${styles.public}`}>public</span>
+              <span className={`${ui.mark} ${ui.public}`}>public</span>
               <span>Your address, the amount and the token.</span>
             </li>
             <li>
-              <span className={`${styles.mark} ${styles.hidden}`}>hidden</span>
+              <span className={`${ui.mark} ${ui.hidden}`}>hidden</span>
               <span>
                 That the new address belongs to this recipient.
-                {plan && <span className={styles.stepDetail}> {short(plan.target.address)}</span>}
+                {plan && <span className={ui.stepDetail}> {short(plan.target.address)}</span>}
               </span>
             </li>
             <li>
-              <span className={`${styles.mark} ${styles.hidden}`}>hidden</span>
+              <span className={`${ui.mark} ${ui.hidden}`}>hidden</span>
               <span>The announcement: 1,570 bytes sealed with ML-KEM-1024. It does not name the recipient.</span>
             </li>
           </ul>
-          <figcaption className={styles.caption}>
-            <span className={styles.captionLabel}>Fig. 4</span>
+          <figcaption className={ui.caption}>
+            <span className={ui.captionLabel}>Fig. 4</span>
             <span>The new address is made in this browser from a secret sealed to the recipient’s ML-KEM-1024 key.</span>
           </figcaption>
         </figure>
