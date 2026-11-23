@@ -322,6 +322,7 @@ Prove each criterion on testnet or with command output. A local unit test alone 
 
 - [ ] Each team member completes the registration: GitHub, personal details, X and the QoreX testnet address.
 - [ ] The GitHub repository is public. GitHub detects the Apache-2.0 `LICENSE` file.
+- [ ] The project page lists every `qor1` address the project uses: account A, the CLI payer, the sponsor wallet and the announcement contract. The fest verifies features only from transactions of these addresses (FAQ, "Declared and Verified").
 - [ ] The README contains the problem, the design, the run steps, the `qor1` testnet addresses and the credits (QoreChain kits, Squidl, Specter, ERC-5564, ERC-8441).
 - [ ] The video is 3 minutes or less.
 - [ ] The cover image is 16:9 and 1200×675 pixels or larger.

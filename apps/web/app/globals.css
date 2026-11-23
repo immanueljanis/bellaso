@@ -64,6 +64,15 @@ h1 {
   color: var(--chalk-muted);
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 .mono {
   font-family: var(--font-mono), monospace;
   font-size: 13px;

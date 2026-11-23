@@ -205,8 +205,8 @@ await window.qorex.native.signAndBroadcast({
 
 Facts (CONFIRMED in QoreX 0.4.3 and `qorex-integrations`):
 
-- QoreX accepts 1 to 32 messages and decodes `MsgSend` and `MsgExecuteContract`.
-- With a contract message, QoreX simulates and sets the gas limit to ceil(simulated × 1.3).
+- QoreX accepts 1 to 32 messages and decodes `MsgSend` and `MsgExecuteContract`. Each `value` is protobuf bytes (`Uint8Array`, `number[]` or base64).
+- `gasLimit` is a hint that QoreX clamps to 100,000 to 5,000,000. Without it, QoreX uses 400,000 (CONFIRMED in the `qorex-types` docs), which is too low for 7 records. The web app sends `gasLimit: 1200000` (gate G3 used 817,224). Because the chain charges the limit, this also cuts the fee to at most 0.18 QOR. An older finding says QoreX simulates contract messages and sets ceil(simulated × 1.3); gate G4 shows which rule QoreX applies.
 - The result is `{ txHash, code, height?, shield }`. Check `capabilities` before the call.
 - Do not set a memo.
 
