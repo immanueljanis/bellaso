@@ -123,7 +123,7 @@ export function SpendClient({ txHash }: { txHash: string }) {
       setResult(sent);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
-      setPhases([]);
+      setPhases((current) => current.map((phase) => (phase.state === "active" ? { ...phase, state: "waiting", detail: `Stopped. ${phase.detail}` } : phase)));
     } finally {
       setBusy(false);
     }
@@ -194,20 +194,11 @@ export function SpendClient({ txHash }: { txHash: string }) {
                     }}
                     disabled={busy || result !== null}
                   />
-                  <div className={styles.quick}>
-                    <button
-                      type="button"
-                      className={ui.textLink}
-                      onClick={() => {
-                        setDestination(vault.address);
-                        setLinkAccepted(false);
-                      }}
-                      disabled={busy || result !== null}
-                    >
-                      My Bellaso account
-                    </button>
-                  </div>
-                  {target.length > 0 && !ADDRESS.test(target) && <p className={ui.hintLeft}>Use a qor1 address with 38 characters after qor1.</p>}
+                  <p className={`${ui.hintLeft} ${styles.destinationHint}`}>
+                    {target.length > 0 && !ADDRESS.test(target)
+                      ? "Use a qor1 address with 38 characters after qor1."
+                      : "Use an exchange deposit address or a new wallet. Everything on this address goes there in one transfer."}
+                  </p>
                   {links && (
                     <div className={styles.warning} role="alert">
                       <p className={styles.warningTitle}>This links your payments together.</p>
