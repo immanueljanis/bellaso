@@ -9,7 +9,8 @@ import {
   generatePqcKeypair,
 } from "@qorechain/sdk";
 import { recipientFromEnv } from "./lib/recipient";
-import { type Coin, balances } from "./lib/rest";
+import { balances } from "./lib/rest";
+import type { Coin } from "@bellaso/chain";
 import { announcementContract, scanChain } from "./lib/scan";
 
 const GAS_PRICE_UQOR = 0.15;
