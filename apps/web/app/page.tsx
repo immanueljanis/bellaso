@@ -146,7 +146,6 @@ export default function Home() {
             <ul className={`${styles.heroMethods} ${styles.up} ${styles.u1}`}>
               {METHODS.map((method) => (
                 <li key={method.title}>
-                  <span className={styles.kicker}>{method.kicker}</span>
                   <span className={styles.heroMethodTitle}>{method.title}</span>
                   <span className={styles.heroMethodText}>{method.short}</span>
                 </li>
