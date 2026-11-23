@@ -1,0 +1,17 @@
+node_modules/
+.next/
+next-env.d.ts
+out/
+dist/
+coverage/
+*.tsbuildinfo
+.vercel/
+data/
+*.sqlite
+*.sqlite-*
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db

@@ -1,0 +1,79 @@
+:root {
+  color-scheme: dark;
+  --board: oklch(0.185 0.009 175);
+  --board-raised: oklch(0.205 0.01 175);
+  --board-deep: oklch(0.16 0.008 175);
+  --chalk: oklch(0.94 0.008 95);
+  --chalk-muted: oklch(0.76 0.01 95);
+  --chalk-line: oklch(0.94 0.008 95 / 0.18);
+  --on-chalk: oklch(0.18 0.01 175);
+  --blue-chalk: oklch(0.8 0.085 235);
+  --blue-chalk-hover: oklch(0.88 0.065 235);
+  --blue-tint: oklch(0.27 0.03 235);
+  --orange-chalk: oklch(0.8 0.12 62);
+  --orange-tint: oklch(0.28 0.035 62);
+  --success: oklch(0.8 0.1 160);
+  --danger: oklch(0.72 0.14 25);
+  --ease-ui: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-state: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-draw: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--board);
+  color: var(--chalk);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+a {
+  color: var(--blue-chalk);
+}
+
+a:hover {
+  color: var(--blue-chalk-hover);
+}
+
+:focus-visible {
+  outline: 2px solid var(--blue-chalk);
+  outline-offset: 3px;
+}
+
+h1 {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 400;
+  font-size: 56px;
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 64px 24px 96px;
+}
+
+.muted {
+  color: var(--chalk-muted);
+}
+
+.mono {
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}

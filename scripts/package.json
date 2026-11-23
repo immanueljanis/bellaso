@@ -1,0 +1,12 @@
+{
+  "name": "@bellaso/scripts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "chain-status": "bun chain-status.ts",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "dependencies": {
+    "@bellaso/chain": "workspace:*"
+  }
+}
