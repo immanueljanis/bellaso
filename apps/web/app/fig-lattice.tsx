@@ -153,10 +153,11 @@ export function FigLattice() {
         context.arc(mine.x, mine.y, (8 + 6 * mine.amount) * mine.scale, 0, Math.PI * 2);
         context.stroke();
         const textWidth = context.measureText(mine.label).width;
+        const left = mine.x + 32 + textWidth > width ? mine.x - 32 - textWidth : mine.x + 20;
         context.fillStyle = board;
-        context.fillRect(mine.x + 20, mine.y - 10, textWidth + 12, 20);
+        context.fillRect(left, mine.y - 10, textWidth + 12, 20);
         context.fillStyle = blue;
-        context.fillText(mine.label, mine.x + 26, mine.y + 1);
+        context.fillText(mine.label, left + 6, mine.y + 1);
       }
       context.globalAlpha = 1;
 
