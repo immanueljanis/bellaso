@@ -27,6 +27,8 @@ Scientific, witty, trustworthy. The voice of a good lab notebook or of the book 
 - Cypherpunk terminals: green on black, monospace everywhere, glitch effects.
 - Web3 glassmorphism: blurred transparent cards and color blobs.
 
+The rebrand of 25 Nov 2026 uses a near-black page, one warm accent and one warm glow in a page corner (`DESIGN.md`). That is the limit: one accent, one glow, solid cards.
+
 ## Design Principles
 
 1. **Show the mechanism, not a shield icon.** Privacy is shown with what the chain actually sees: a new address, a ciphertext of 1,570 bytes, no link to the recipient.
