@@ -85,7 +85,7 @@ export function InboxClient() {
         action={
           vault && (
             <button type="button" className={ui.secondary} onClick={lock}>
-              <span className={ui.long}>Lock vault</span>
+              <span className={ui.long}>Lock my Bellaso</span>
               <span className={ui.short}>Lock</span>
             </button>
           )
@@ -118,10 +118,12 @@ export function InboxClient() {
                 <h2 id="payments-title" className={styles.paymentsTitle}>
                   Payments
                 </h2>
-                <span className={styles.unspent}>
-                  Unspent <strong>{unspent.length === 0 ? "nothing" : unspentTotal}</strong>
-                  {unspent.length > 1 && ` in ${unspent.length} payments`}
-                </span>
+                {payments.length > 0 && (
+                  <span className={styles.unspent}>
+                    Unspent <strong>{unspent.length === 0 ? "nothing" : unspentTotal}</strong>
+                    {unspent.length > 1 && ` in ${unspent.length} payments`}
+                  </span>
+                )}
               </div>
               {unspent.length > 0 && (
                 <p className={styles.note}>
@@ -131,9 +133,9 @@ export function InboxClient() {
 
               {payments.length === 0 && scan && !scan.running ? (
                 <div className={styles.empty}>
-                  <p className={styles.emptyTitle}>Nothing here yet</p>
+                  <p className={styles.emptyTitle}>Share your link to get the first payment</p>
                   <p className={ui.hintLeft}>
-                    Share your link. Each payment shows here after a scan, and only this browser can tell that it is yours.
+                    Each payment shows here after a scan. Only this browser can tell that it is yours.
                   </p>
                   <Link href="/receive" className={ui.primaryLink}>
                     Get my payment link

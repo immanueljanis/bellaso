@@ -136,7 +136,7 @@ export function SpendClient({ txHash }: { txHash: string }) {
         action={
           vault && (
             <button type="button" className={ui.secondary} onClick={lock}>
-              <span className={ui.long}>Lock vault</span>
+              <span className={ui.long}>Lock my Bellaso</span>
               <span className={ui.short}>Lock</span>
             </button>
           )
