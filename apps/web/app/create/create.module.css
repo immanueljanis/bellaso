@@ -294,3 +294,32 @@
   font-size: 12px;
   color: var(--chalk-muted);
 }
+
+.part {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.panel > .part:not(:first-child) {
+  margin-top: 12px;
+  padding-top: 20px;
+  border-top: 1px solid oklch(0.94 0.008 95 / 0.1);
+}
+
+.doneSteps {
+  margin-top: 28px;
+}
+
+.doneSteps > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: var(--chalk-muted);
+  cursor: pointer;
+}
+
+.doneSteps > summary:hover {
+  color: var(--chalk);
+}

@@ -188,6 +188,7 @@ export function CreateClient() {
   }, [recipient, origin]);
   const allDone = done >= 5;
   const blockedByVault = existing && done === 0;
+  const StepsFrame = allDone ? "details" : "div";
 
   return (
     <>
@@ -226,6 +227,12 @@ export function CreateClient() {
                   Send it to clients. Each payment goes to a new address. <Link href="/inbox">Open my inbox</Link> ·{" "}
                   <Link href="/receive">Make a stealth address for one client</Link>
                 </p>
+                <p className={styles.next}>
+                  Your keys live only in this browser.{" "}
+                  <button type="button" className={ui.textLink} onClick={download}>
+                    Download encrypted backup
+                  </button>
+                </p>
               </div>
             )}
             {blockedByVault ? (
@@ -257,6 +264,8 @@ export function CreateClient() {
                 </button>
               </form>
             ) : (
+              <StepsFrame className={allDone ? styles.doneSteps : undefined}>
+              {allDone && <summary>What the setup did, in 5 steps</summary>}
               <div className={styles.list}>
                 <span className={styles.rail} aria-hidden="true" />
                 <span
@@ -306,6 +315,7 @@ export function CreateClient() {
                                 </>
                               ) : (
                                 <>
+                                  <p className={styles.part}>First, write down your 24 words</p>
                                   <div className={styles.row}>
                                     <button
                                       type="button"
@@ -332,9 +342,18 @@ export function CreateClient() {
                                       ))}
                                     </ol>
                                   )}
+                                  {seen ? (
+                                    <label className={ui.check}>
+                                      <input type="checkbox" checked={wroteDown} onChange={(event) => setWroteDown(event.target.checked)} />
+                                      <span>I wrote the 24 words down. Without them, nobody can recover my Bellaso.</span>
+                                    </label>
+                                  ) : (
+                                    <p className={ui.hintLeft}>Paper is best. Anyone who has these words can spend your funds.</p>
+                                  )}
                                 </>
                               )}
 
+                              <p className={styles.part}>{restoring ? "Choose a passphrase" : "Then, choose a passphrase"}</p>
                               <div className={styles.fields}>
                                 <div>
                                   <label htmlFor="passphrase" className={ui.label}>
@@ -370,19 +389,14 @@ export function CreateClient() {
                                     ? "The two passphrases are different."
                                     : "The passphrase unlocks Bellaso in this browser. It is not your 24 words, and it never leaves this device."}
                               </p>
-                              {!restoring && (
-                                <label className={ui.check}>
-                                  <input type="checkbox" checked={wroteDown} disabled={!seen} onChange={(event) => setWroteDown(event.target.checked)} />
-                                  <span>
-                                    {seen
-                                      ? "I wrote the 24 words down. Without them, nobody can recover this account."
-                                      : "Show the phrase and write the 24 words down. Then confirm it here."}
-                                  </span>
-                                </label>
-                              )}
                               <button type="button" className={ui.primary} onClick={save} disabled={!canSave}>
                                 {busy ? "Encrypting…" : "Save and continue"}
                               </button>
+                              {!restoring && !wroteDown && passphraseOk && (
+                                <p className={ui.hintLeft}>
+                                  {seen ? "Confirm that you wrote the 24 words down." : "Show the phrase and write the 24 words down first."}
+                                </p>
+                              )}
                             </div>
                           )}
 
@@ -413,6 +427,7 @@ export function CreateClient() {
                   })}
                 </ol>
               </div>
+              </StepsFrame>
             )}
 
             {error && (
