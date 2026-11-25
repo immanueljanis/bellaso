@@ -1,16 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { EB_Garamond, IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import type { ReactNode } from "react";
 import "./globals.css";
 
-const display = EB_Garamond({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  style: ["normal", "italic"],
-  variable: "--font-display",
-});
-const sans = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-sans" });
-const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-mono" });
+const sans = Geist({ subsets: ["latin"], variable: "--font-sans" });
+const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://bellaso.vercel.app"),
@@ -21,11 +15,11 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", images: ["/brand/cover-1600x900.png"] },
 };
 
-export const viewport: Viewport = { themeColor: "#161D1B", colorScheme: "dark", viewportFit: "cover" };
+export const viewport: Viewport = { themeColor: "#131110", colorScheme: "dark", viewportFit: "cover" };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable} ${mono.variable}`}>
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
       <body>{children}</body>
     </html>
   );

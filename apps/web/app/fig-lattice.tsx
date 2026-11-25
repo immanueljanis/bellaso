@@ -65,10 +65,10 @@ export function FigLattice() {
     const nodes = lattice();
     const css = getComputedStyle(canvas);
     const color = (name: string, fallback: string) => css.getPropertyValue(name).trim() || fallback;
-    const orange = color("--orange-chalk", "#e0a060");
-    const blue = color("--blue-chalk", "#8fc4ea");
+    const soft = color("--soft", "#cfccc6");
+    const accent = color("--accent", "#f0823c");
     const chalk = color("--chalk", "#ecebe4");
-    const board = color("--board", "#141917");
+    const board = color("--board", "#131110");
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let width = 0;
     let height = 0;
@@ -116,8 +116,8 @@ export function FigLattice() {
         context.beginPath();
         corners.forEach((corner, index) => (index === 0 ? context.moveTo(corner.x, corner.y) : context.lineTo(corner.x, corner.y)));
         context.closePath();
-        context.fillStyle = quantum ? orange : chalk;
-        context.strokeStyle = quantum ? orange : chalk;
+        context.fillStyle = quantum ? soft : accent;
+        context.strokeStyle = quantum ? soft : accent;
         context.globalAlpha = 0.05;
         context.fill();
         context.globalAlpha = 0.5;
@@ -133,7 +133,7 @@ export function FigLattice() {
         const reveal = node.label && !quantum ? ease((plane - node.x) / 0.6) * (still ? 1 : clamp((HALF - 0.2 - local) / 0.7)) : 0;
         if (node.label && reveal > 0) found.push({ ...point, label: node.label, amount: reveal });
         context.globalAlpha = Math.max(fog * (0.5 + near * 0.5) * (1 - reveal), 0);
-        context.fillStyle = near > 0.5 && !quantum ? chalk : orange;
+        context.fillStyle = near > 0.5 && !quantum ? chalk : soft;
         context.beginPath();
         context.arc(point.x, point.y, (2.4 + near * 1.6) * point.scale, 0, Math.PI * 2);
         context.fill();
@@ -143,11 +143,11 @@ export function FigLattice() {
       context.textBaseline = "middle";
       for (const mine of found) {
         context.globalAlpha = mine.amount;
-        context.fillStyle = blue;
+        context.fillStyle = accent;
         context.beginPath();
         context.arc(mine.x, mine.y, 4 * mine.scale, 0, Math.PI * 2);
         context.fill();
-        context.strokeStyle = blue;
+        context.strokeStyle = accent;
         context.lineWidth = 1.5;
         context.beginPath();
         context.arc(mine.x, mine.y, (8 + 6 * mine.amount) * mine.scale, 0, Math.PI * 2);
@@ -156,7 +156,7 @@ export function FigLattice() {
         const left = mine.x + 32 + textWidth > width ? mine.x - 32 - textWidth : mine.x + 20;
         context.fillStyle = board;
         context.fillRect(left, mine.y - 10, textWidth + 12, 20);
-        context.fillStyle = blue;
+        context.fillStyle = accent;
         context.fillText(mine.label, left + 6, mine.y + 1);
       }
       context.globalAlpha = 1;

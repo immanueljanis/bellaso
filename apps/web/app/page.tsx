@@ -78,7 +78,9 @@ export default function Home() {
       <main className={styles.landing}>
         <section className={styles.hero}>
           <div>
-            <h1 className={`${styles.heroTitle} ${styles.up}`}>Quantum-safe stealth payments.</h1>
+            <h1 className={`${styles.heroTitle} ${styles.up}`}>
+              Quantum‑safe <span>stealth payments.</span>
+            </h1>
             <p className={`${styles.heroLede} ${styles.up} ${styles.u1}`}>
               Get paid in crypto with one link. Each payment lands in a new address, so nobody who reads the chain can link your payments to you.
               Quantum-safe means that this stays true after Q-Day, the day a quantum computer breaks the keys of the wallets in use now.
@@ -97,6 +99,23 @@ export default function Home() {
               <span className={`${ui.corner} ${ui.bl}`} aria-hidden="true" />
               <span className={`${ui.corner} ${ui.br}`} aria-hidden="true" />
               <FigLattice />
+              <div className={`${styles.float} ${styles.floatLink}`} aria-hidden="true">
+                <p className={styles.floatLabel}>Your payment link</p>
+                <p className={styles.floatMono}>bellaso.vercel.app/pay/qor1…</p>
+                <p className={styles.floatNote}>One link for every payer</p>
+              </div>
+              <div className={`${styles.float} ${styles.floatInbox}`} aria-hidden="true">
+                <p className={styles.floatLabel}>Inbox</p>
+                <p className={styles.floatRow}>
+                  <strong>150 fUSD</strong>
+                  <span>Payment link</span>
+                </p>
+                <p className={styles.floatRow}>
+                  <strong>0.25 fETH</strong>
+                  <span>Studio Kyoto</span>
+                </p>
+                <p className={styles.floatNote}>Only this browser can tell that they are yours</p>
+              </div>
             </div>
             <figcaption className={ui.caption}>
               <span className={ui.captionLabel}>Fig. 1</span>

@@ -5,11 +5,11 @@
 }
 
 .ok {
-  color: var(--blue-chalk);
+  color: var(--accent);
 }
 
 .failed {
-  color: var(--orange-chalk);
+  color: var(--soft);
 }
 
 .transfer {
@@ -18,7 +18,9 @@
 
 .amount {
   margin: 0;
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  letter-spacing: -0.03em;
+  font-weight: 500;
   font-size: clamp(32px, 5vw, 44px);
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
@@ -52,7 +54,7 @@
 
 .event {
   font-family: var(--font-mono), monospace;
-  color: var(--blue-chalk);
+  color: var(--accent);
 }
 
 .raw {

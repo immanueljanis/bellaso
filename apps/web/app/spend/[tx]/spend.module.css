@@ -16,9 +16,9 @@
 .warning {
   margin-top: 16px;
   padding: 14px 16px;
-  border: 1px solid oklch(0.8 0.12 62 / 0.5);
-  background: var(--orange-tint);
-  border-radius: 2px;
+  border: 1px solid oklch(0.82 0.01 80 / 0.5);
+  background: var(--soft-tint);
+  border-radius: 14px;
   font-size: 14px;
   animation: unfold 420ms var(--ease-state) both;
 }
@@ -29,7 +29,7 @@
 
 .warningTitle {
   font-weight: 600;
-  color: var(--orange-chalk);
+  color: var(--soft);
 }
 
 .warning p + p {
@@ -55,7 +55,7 @@
 .bar {
   margin-top: 8px;
   height: 8px;
-  background: oklch(0.94 0.008 95 / 0.08);
+  background: oklch(0.96 0.004 90 / 0.08);
 }
 
 .barFill {
@@ -66,11 +66,11 @@
 }
 
 .ec {
-  background: var(--orange-chalk);
+  background: var(--soft);
 }
 
 .pq {
-  background: var(--blue-chalk);
+  background: var(--accent);
 }
 
 .sigNote {

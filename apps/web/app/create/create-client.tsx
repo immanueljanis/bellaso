@@ -452,8 +452,8 @@ export function CreateClient() {
               <p className={styles.group}>On chain, public</p>
               <ul className={styles.keys}>
                 {[
-                  { name: "ML-DSA-87 public key", size: "2,592 B", color: "var(--blue-chalk)", scale: done > 2 ? 1 : 0 },
-                  { name: "ML-KEM-1024 public key", size: "1,568 B", color: "var(--orange-chalk)", scale: done > 3 ? 0.605 : 0 },
+                  { name: "ML-DSA-87 public key", size: "2,592 B", color: "var(--accent)", scale: done > 2 ? 1 : 0 },
+                  { name: "ML-KEM-1024 public key", size: "1,568 B", color: "var(--soft)", scale: done > 3 ? 0.605 : 0 },
                 ].map((key) => (
                   <li key={key.name}>
                     <div className={styles.key}>

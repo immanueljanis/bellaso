@@ -12,11 +12,11 @@
 }
 
 .rail {
-  background: oklch(0.94 0.008 95 / 0.14);
+  background: oklch(0.96 0.004 90 / 0.14);
 }
 
 .railFill {
-  background: var(--blue-chalk);
+  background: var(--accent);
   transform-origin: top;
   transition: transform 900ms var(--ease-draw);
 }
@@ -46,17 +46,17 @@
   font-family: var(--font-mono), monospace;
   font-size: 13px;
   color: var(--chalk-muted);
-  border: 1px solid oklch(0.94 0.008 95 / 0.22);
+  border: 1px solid oklch(0.96 0.004 90 / 0.22);
 }
 
 .badgeActive {
-  border: 1.5px solid var(--blue-chalk);
-  color: var(--blue-chalk);
+  border: 1.5px solid var(--accent);
+  color: var(--accent);
 }
 
 .badgeDone {
   border: 0;
-  background: var(--blue-chalk);
+  background: var(--accent);
   color: var(--on-chalk);
   animation: settle 520ms var(--ease-state) both;
 }
@@ -65,7 +65,7 @@
   flex-grow: 1;
   min-width: 0;
   padding-bottom: 18px;
-  border-bottom: 1px solid oklch(0.94 0.008 95 / 0.08);
+  border-bottom: 1px solid oklch(0.96 0.004 90 / 0.08);
 }
 
 .head {
@@ -94,7 +94,7 @@
 }
 
 .stepMetaDone {
-  color: var(--blue-chalk);
+  color: var(--accent);
 }
 
 .stepBody {
@@ -112,7 +112,7 @@
 .progressText {
   margin: 8px 0 0;
   font-size: 13px;
-  color: var(--blue-chalk);
+  color: var(--accent);
 }
 
 .panel {
@@ -138,8 +138,8 @@
   grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
   gap: 10px 18px;
   background: var(--board-deep);
-  border: 1px solid oklch(0.94 0.008 95 / 0.14);
-  border-radius: 2px;
+  border: 1px solid oklch(0.96 0.004 90 / 0.14);
+  border-radius: 14px;
   font-family: var(--font-mono), monospace;
   font-size: 13px;
   animation: unfold 500ms var(--ease-state) both;
@@ -181,9 +181,9 @@
 .linkBox {
   margin-bottom: 28px;
   padding: 24px;
-  border: 1px solid oklch(0.8 0.085 235 / 0.45);
-  background: var(--blue-tint);
-  border-radius: 2px;
+  border: 1px solid oklch(0.74 0.17 50 / 0.45);
+  background: var(--accent-tint);
+  border-radius: 14px;
   animation: unfold 600ms var(--ease-state) both;
 }
 
@@ -191,7 +191,7 @@
   display: block;
   font-size: 13px;
   font-weight: 500;
-  color: var(--blue-chalk);
+  color: var(--accent);
 }
 
 .linkRow {
@@ -257,7 +257,7 @@
 .bar {
   margin-top: 6px;
   height: 6px;
-  background: oklch(0.94 0.008 95 / 0.08);
+  background: oklch(0.96 0.004 90 / 0.08);
 }
 
 .barFill {
@@ -269,7 +269,7 @@
 .section + .section {
   margin-top: 26px;
   padding-top: 22px;
-  border-top: 1px solid oklch(0.94 0.008 95 / 0.1);
+  border-top: 1px solid oklch(0.96 0.004 90 / 0.1);
 }
 
 .tx {
@@ -304,7 +304,7 @@
 .panel > .part:not(:first-child) {
   margin-top: 12px;
   padding-top: 20px;
-  border-top: 1px solid oklch(0.94 0.008 95 / 0.1);
+  border-top: 1px solid oklch(0.96 0.004 90 / 0.1);
 }
 
 .doneSteps {

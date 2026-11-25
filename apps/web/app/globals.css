@@ -1,20 +1,21 @@
 :root {
   color-scheme: dark;
-  --board: oklch(0.185 0.009 175);
-  --board-raised: oklch(0.205 0.01 175);
-  --board-deep: oklch(0.16 0.008 175);
-  --chalk: oklch(0.94 0.008 95);
-  --chalk-hover: oklch(0.99 0.004 95);
-  --chalk-muted: oklch(0.76 0.01 95);
-  --chalk-line: oklch(0.94 0.008 95 / 0.18);
-  --on-chalk: oklch(0.18 0.01 175);
-  --blue-chalk: oklch(0.8 0.085 235);
-  --blue-chalk-hover: oklch(0.88 0.065 235);
-  --blue-tint: oklch(0.235 0.018 215);
-  --orange-chalk: oklch(0.8 0.12 62);
-  --orange-tint: oklch(0.28 0.035 62);
+  --board: oklch(0.145 0.004 60);
+  --board-raised: oklch(0.185 0.005 60);
+  --board-deep: oklch(0.115 0.004 60);
+  --chalk: oklch(0.96 0.004 90);
+  --chalk-hover: oklch(1 0 0);
+  --chalk-muted: oklch(0.74 0.006 90);
+  --chalk-line: oklch(0.96 0.004 90 / 0.18);
+  --on-chalk: oklch(0.15 0.005 60);
+  --accent: oklch(0.74 0.17 50);
+  --accent-hover: oklch(0.82 0.13 55);
+  --accent-tint: oklch(0.25 0.05 50);
+  --soft: oklch(0.82 0.01 80);
+  --soft-tint: oklch(0.24 0.006 80);
   --success: oklch(0.8 0.1 160);
   --danger: oklch(0.72 0.14 25);
+  --font-display: var(--font-sans);
   --ease-ui: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-state: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-draw: cubic-bezier(0.65, 0, 0.35, 1);
@@ -29,9 +30,9 @@ body::before {
   position: fixed;
   inset: 0;
   z-index: -1;
-  background-image: url("/brand/chalk-dust.svg");
-  background-size: 320px 320px;
-  opacity: 0.16;
+  background:
+    radial-gradient(60% 55% at 100% 100%, oklch(0.74 0.17 50 / 0.2), transparent 70%),
+    radial-gradient(45% 40% at 0% 0%, oklch(0.74 0.17 50 / 0.06), transparent 70%);
   pointer-events: none;
 }
 
@@ -45,24 +46,24 @@ body {
 }
 
 a {
-  color: var(--blue-chalk);
+  color: var(--accent);
 }
 
 a:hover {
-  color: var(--blue-chalk-hover);
+  color: var(--accent-hover);
 }
 
 :focus-visible {
-  outline: 2px solid var(--blue-chalk);
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
 
 h1 {
-  font-family: var(--font-display), Georgia, serif;
-  font-weight: 400;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 500;
   font-size: 56px;
   line-height: 1.04;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.035em;
   margin: 0;
 }
 

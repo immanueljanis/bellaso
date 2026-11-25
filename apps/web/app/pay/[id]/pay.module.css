@@ -46,7 +46,7 @@
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 4px 16px;
-  border-top: 1px solid oklch(0.94 0.008 95 / 0.12);
+  border-top: 1px solid oklch(0.96 0.004 90 / 0.12);
   font-size: 14px;
 }
 
@@ -62,14 +62,14 @@
   flex-wrap: wrap;
   gap: 18px 22px;
   align-items: flex-start;
-  border-top: 1px solid oklch(0.94 0.008 95 / 0.12);
+  border-top: 1px solid oklch(0.96 0.004 90 / 0.12);
 }
 
 .qr {
   flex: none;
   width: 132px;
   height: 132px;
-  border-radius: 2px;
+  border-radius: 14px;
 }
 
 .noWalletText {

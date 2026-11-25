@@ -50,7 +50,7 @@
   min-width: 2px;
   height: 44px;
   border-radius: 1px;
-  background: oklch(0.94 0.008 95 / 0.12);
+  background: oklch(0.96 0.004 90 / 0.12);
   transform: scaleY(0.32);
   transform-origin: bottom;
   transition: transform 420ms var(--ease-state), background-color 420ms var(--ease-state);
@@ -58,17 +58,17 @@
 
 .tickOther {
   transform: scaleY(0.41);
-  background: oklch(0.94 0.008 95 / 0.35);
+  background: oklch(0.96 0.004 90 / 0.35);
 }
 
 .tickMine {
   transform: none;
-  background: var(--blue-chalk);
+  background: var(--accent);
 }
 
 .tickCursor {
   transform: scaleY(0.68);
-  background: var(--orange-chalk);
+  background: var(--soft);
 }
 
 .legend {
@@ -96,7 +96,7 @@
 .feed {
   margin: 12px 0 0;
   padding-top: 12px;
-  border-top: 1px solid oklch(0.94 0.008 95 / 0.08);
+  border-top: 1px solid oklch(0.96 0.004 90 / 0.08);
   font-family: var(--font-mono), monospace;
   font-size: 12px;
   color: var(--chalk-muted);
@@ -112,7 +112,7 @@
   align-items: baseline;
   gap: 6px 24px;
   padding-bottom: 14px;
-  border-bottom: 1px solid oklch(0.94 0.008 95 / 0.3);
+  border-bottom: 1px solid oklch(0.96 0.004 90 / 0.3);
 }
 
 .paymentsTitle {
@@ -147,7 +147,9 @@
 
 .emptyTitle {
   margin: 0 0 8px;
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  letter-spacing: -0.03em;
+  font-weight: 500;
   font-size: 30px;
 }
 
@@ -163,7 +165,7 @@
   gap: 8px 24px;
   align-items: center;
   padding: 18px 0;
-  border-bottom: 1px solid oklch(0.94 0.008 95 / 0.08);
+  border-bottom: 1px solid oklch(0.96 0.004 90 / 0.08);
   animation: rise 520ms var(--ease-state) both;
 }
 
@@ -176,7 +178,9 @@
 }
 
 .amount {
-  font-family: var(--font-display), Georgia, serif;
+  font-family: var(--font-display), system-ui, sans-serif;
+  letter-spacing: -0.03em;
+  font-weight: 500;
   font-size: 24px;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
@@ -204,14 +208,14 @@
   justify-self: start;
   padding: 3px 10px;
   border-radius: 999px;
-  background: var(--blue-tint);
-  color: var(--blue-chalk);
+  background: var(--accent-tint);
+  color: var(--accent);
   font-size: 12px;
   font-weight: 500;
 }
 
 .spent {
-  background: oklch(0.94 0.008 95 / 0.08);
+  background: oklch(0.96 0.004 90 / 0.08);
   color: var(--chalk-muted);
 }
 
