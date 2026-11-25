@@ -109,7 +109,7 @@ export function ReceiveClient() {
         action={
           vault && (
             <button type="button" className={ui.secondary} onClick={lock}>
-              <span className={ui.long}>Lock vault</span>
+              <span className={ui.long}>Lock my Bellaso</span>
               <span className={ui.short}>Lock</span>
             </button>
           )
@@ -265,6 +265,7 @@ export function ReceiveClient() {
                 </div>
               )}
 
+              {method === "stealth" && (
               <section aria-labelledby="stealth-title" className={styles.list}>
                 <div className={styles.listHead}>
                   <h2 id="stealth-title" className={styles.listTitle}>
@@ -294,6 +295,7 @@ export function ReceiveClient() {
                   </ul>
                 )}
               </section>
+              )}
             </section>
 
             <figure className={`${ui.side} ${styles.figure}`}>
@@ -301,18 +303,20 @@ export function ReceiveClient() {
               <span className={`${ui.corner} ${ui.tr}`} aria-hidden="true" />
               <span className={`${ui.corner} ${ui.bl}`} aria-hidden="true" />
               <span className={`${ui.corner} ${ui.br}`} aria-hidden="true" />
+              <h2 className={styles.figureTitle}>Where each new address comes from</h2>
               <p className={styles.formula}>
                 P = P<sub>A</sub> + h·G
               </p>
+              <p className={styles.derivationNote}>Your public key, moved by a secret number h. Only you can make the key that spends from P.</p>
               <div className={`${styles.derivation} ${method === "link" ? styles.derivationOn : ""}`}>
                 <p className={styles.kicker}>Payment link</p>
                 <p className={styles.equation}>h = SHAKE256(ss)</p>
-                <p className={styles.derivationNote}>ss is sealed by the payer&apos;s browser to your ML-KEM-1024 key.</p>
+                <p className={styles.derivationNote}>The payer&apos;s browser makes a secret (ss) and seals it to your ML-KEM-1024 key.</p>
               </div>
               <div className={`${styles.derivation} ${method === "stealth" ? styles.derivationOn : ""}`}>
                 <p className={styles.kicker}>Stealth address</p>
                 <p className={styles.equation}>h = SHAKE256(pqRoot ‖ i)</p>
-                <p className={styles.derivationNote}>pqRoot comes from your recovery phrase. i counts your addresses.</p>
+                <p className={styles.derivationNote}>Your recovery phrase gives a root secret (pqRoot). i counts your addresses.</p>
               </div>
               <figcaption className={ui.caption}>
                 <span className={ui.captionLabel}>Fig. 8</span>
