@@ -1,16 +1,11 @@
 import Link from "next/link";
+import { ComparedTable, DEMO_PAY_PATH, HIDDEN, PUBLIC, REPO } from "./content";
 import { FigJourney } from "./fig-journey";
 import { FigLattice } from "./fig-lattice";
 import { HeroCta } from "./hero-cta";
 import { SiteHeader } from "./site-header";
 import ui from "./ui.module.css";
 import styles from "./landing.module.css";
-
-const REPO = "https://github.com/immanueljanis/bellaso";
-/** The testnet demo recipient. Its only funder is the Bellaso sponsor, so its payments stay unlinked (AC6). */
-const DEMO_RECIPIENT = "qor130jxjehyvf2ndr6lyutl9e09plv7k0epyhnmyz";
-/** The KEM key fingerprint of the demo recipient, checked against the chain on 23 Nov 2026. */
-const DEMO_FINGERPRINT = "b28fe7b8c9575ffb8d137581d33c2b2b";
 
 /** The recipient flow in three plain steps, directly below the hero. */
 const QUICK = [
@@ -61,35 +56,6 @@ const STEPS = [
   ["Only Rina can open it", "Her inbox tries every announcement with her secret key. She spends what opens with two signatures, secp256k1 and ML-DSA-87."],
 ] as const;
 
-const HIDDEN = [
-  "The link between a payment and the recipient",
-  "The link between two payments to the same recipient",
-  "The funds: a spend needs both signatures",
-];
-
-const PUBLIC = [
-  "The payer address, the amount and the token",
-  "The time of the payment and of the spend",
-  "That a transaction is a Bellaso payment",
-  "Your IP and the link you open: our gateway sees them, the chain does not",
-];
-
-const COMPARED = {
-  products: [
-    ["Bellaso", "QoreChain testnet"],
-    ["Silent Payments", "Bitcoin, BIP-352"],
-    ["Umbra", "Ethereum, 270,000+ payments"],
-    ["Fluidkey", "Payment links, $840M sent"],
-  ],
-  rows: [
-    ["Hides who gets paid", "Yes", "Yes", "Yes", "Yes"],
-    ["Who pays and how much", "Public", "Public", "Public", "Public"],
-    ["Who sees your payment list", "Only you", "Only you", "Only you", "You and Fluidkey"],
-    ["Old payments private after Q-Day", "Yes, ML-KEM-1024", "No", 'No, rated "Exposed"', "If you trust the service"],
-    ["Funds safe after Q-Day", "Yes, ML-DSA-87", "No", "No", "No"],
-  ],
-} as const;
-
 /** The landing page (design canvas, Main board): the benefit first, one live figure, the two methods, the honest limits and the comparison. */
 export default function Home() {
   return (
@@ -101,6 +67,7 @@ export default function Home() {
             <a href="#how">How it works</a>
             <a href="#public">What stays public</a>
             <a href="#compared">Compared</a>
+            <Link href="/deck">Deck</Link>
             <Link href="/inbox" className={ui.secondary}>
               <span className={styles.long}>Open my inbox</span>
               <span className={styles.short}>Inbox</span>
@@ -118,7 +85,7 @@ export default function Home() {
             </p>
             <div className={`${styles.actions} ${styles.up} ${styles.u2}`}>
               <HeroCta />
-              <Link href={`/pay/${DEMO_RECIPIENT}#k=${DEMO_FINGERPRINT}`} className={styles.textLink}>
+              <Link href={DEMO_PAY_PATH} className={styles.textLink}>
                 See what a payer sees <span className={styles.arrow}>→</span>
               </Link>
             </div>
@@ -260,33 +227,7 @@ export default function Home() {
             Next to other stealth payments
           </h2>
           <p className={styles.lede}>All of them hide who gets paid, and none hide who pays. The difference is what happens after Q-Day.</p>
-          <div className={styles.tableWrap}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th scope="col">Question</th>
-                  {COMPARED.products.map(([name, detail]) => (
-                    <th key={name} scope="col" className={name === "Bellaso" ? styles.us : undefined}>
-                      {name}
-                      <span>{detail}</span>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {COMPARED.rows.map(([question, ...answers]) => (
-                  <tr key={question}>
-                    <th scope="row">{question}</th>
-                    {answers.map((answer, index) => (
-                      <td key={`${question}-${index}`} className={index === 0 ? styles.us : undefined}>
-                        {answer}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <ComparedTable />
           <p className={styles.source}>
             Sources: L2BEAT privacy ratings (Umbra, Fluidkey), BIP-352, Gitcoin (Umbra usage), Crypto Briefing, June 2026 (Fluidkey usage). The three other
             products sign with elliptic-curve keys.
@@ -309,6 +250,7 @@ export default function Home() {
       <footer className={styles.footer}>
         <p>Testnet only. All tokens are test tokens with no value.</p>
         <nav aria-label="Project">
+          <Link href="/deck">Deck</Link>
           <a href={REPO}>Source code</a>
           <a href={`${REPO}/blob/main/docs/THREAT_MODEL.md`}>Threat model</a>
           <a href={`${REPO}/tree/main/apps/gateway`}>Run the gateway yourself</a>
