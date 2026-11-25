@@ -56,15 +56,13 @@
 }
 
 .noWallet {
-  margin-bottom: 28px;
-  padding: 18px 20px;
+  margin-top: 24px;
+  padding-top: 24px;
   display: flex;
   flex-wrap: wrap;
   gap: 18px 22px;
-  align-items: center;
-  border: 1px solid oklch(0.8 0.12 62 / 0.45);
-  background: var(--orange-tint);
-  border-radius: 2px;
+  align-items: flex-start;
+  border-top: 1px solid oklch(0.94 0.008 95 / 0.12);
 }
 
 .qr {
@@ -81,7 +79,29 @@
 
 .noWalletTitle {
   margin: 0;
+  font-size: 17px;
   font-weight: 600;
+}
+
+.noWalletWhy {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--chalk-muted);
+}
+
+.onPhone {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .qr,
+  .withCamera {
+    display: none;
+  }
+
+  .onPhone {
+    display: list-item;
+  }
 }
 
 .noWalletSteps {

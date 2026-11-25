@@ -110,26 +110,9 @@ export function PayClient({ recipient }: { recipient: string }) {
           <p className={styles.intro}>
             A Bellaso payment link. Your payment goes to a new address that only the recipient can find. <Link href="/">What is Bellaso?</Link>
           </p>
-          <p className={ui.meta}>To {short(recipient)}</p>
+          <p className={ui.meta}>To the recipient account {short(recipient)}</p>
 
           <div className={ui.card}>
-            {stage === "ready" && !hasQorex && (
-              <div className={styles.noWallet}>
-                {phoneLink && <QrCode text={phoneLink} label="QR code of this payment link" className={styles.qr} />}
-                <div className={styles.noWalletText}>
-                  <p className={styles.noWalletTitle}>This browser has no QoreX wallet. Pay from your phone.</p>
-                  <ol className={styles.noWalletSteps}>
-                    <li>Scan the code with your phone to get this link.</li>
-                    <li>In the QoreX app, turn on Settings › Use testnet (developers).</li>
-                    <li>Open the link in the QoreX browser and pay there.</li>
-                  </ol>
-                  <button type="button" className={ui.secondary} onClick={() => copy(phoneLink)}>
-                    {copied ? "Link copied" : "Copy this link"}
-                  </button>
-                </div>
-              </div>
-            )}
-
             <label htmlFor="amount" className={ui.label}>
               Amount{asked && <span className={styles.asked}> · the recipient asks for this amount</span>}
             </label>
@@ -165,7 +148,7 @@ export function PayClient({ recipient }: { recipient: string }) {
               <dd>
                 {shown} {symbol}
               </dd>
-              <dt>Gas for the recipient</dt>
+              <dt>QOR that lets the recipient spend it</dt>
               <dd>{ALLOWANCE_QOR} QOR</dd>
               <dt>Network fee (QoreX)</dt>
               <dd>about {QOREX_PAYMENT_FEE_QOR} QOR</dd>
@@ -178,6 +161,25 @@ export function PayClient({ recipient }: { recipient: string }) {
             </p>
 
             {stage === "loading" && <p className={ui.hint}>Reading the recipient’s keys from QoreChain…</p>}
+
+            {stage === "ready" && !hasQorex && (
+              <div className={styles.noWallet}>
+                {phoneLink && <QrCode text={phoneLink} label="QR code of this payment link" className={styles.qr} />}
+                <div className={styles.noWalletText}>
+                  <p className={styles.noWalletTitle}>Pay in the QoreX app</p>
+                  <p className={styles.noWalletWhy}>This browser has no QoreX wallet, so the payment is signed in the app.</p>
+                  <ol className={styles.noWalletSteps}>
+                    <li className={styles.withCamera}>Scan the code with your phone. It carries the amount above.</li>
+                    <li className={styles.onPhone}>Copy this link. It carries the amount above.</li>
+                    <li>In the QoreX app, turn on Settings › Use testnet (developers).</li>
+                    <li>Open the link in the QoreX browser and pay there.</li>
+                  </ol>
+                  <button type="button" className={ui.secondary} onClick={() => copy(phoneLink)}>
+                    {copied ? "Link copied" : "Copy this link"}
+                  </button>
+                </div>
+              </div>
+            )}
 
             {(stage === "ready" || stage === "signing") && hasQorex && (
               <>
@@ -245,7 +247,7 @@ export function PayClient({ recipient }: { recipient: string }) {
             </li>
             <li>
               <span className={`${ui.mark} ${ui.hidden}`}>hidden</span>
-              <span>The announcement: 1,570 bytes sealed with ML-KEM-1024. It does not name the recipient.</span>
+              <span>What the announcement says: 1,570 bytes that only the recipient can open. It does not name the recipient.</span>
             </li>
           </ul>
           <figcaption className={ui.caption}>
