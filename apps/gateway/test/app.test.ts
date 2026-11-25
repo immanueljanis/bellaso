@@ -4,6 +4,12 @@ import { readConfig } from "../src/config";
 import { ipKey, isAllowedRestRead, isAllowedRpcBody } from "../src/proxy";
 import { config } from "./fixtures";
 
+/**
+ * The first test of this file builds the first app of the process. On a busy machine that cold start took 7 to 17 seconds,
+ * which is more than the 5 second default of bun test. The assertions do not change.
+ */
+const COLD_START_TIMEOUT_MS = 30_000;
+
 /** A fetch double that records the URLs it is asked for and answers with JSON. */
 function fakeFetch(calls: string[]): typeof fetch {
   return (async (input: string | URL | Request) => {
@@ -24,7 +30,7 @@ test("health answers, with CORS only for an allowed origin", async () => {
   expect(other.headers["access-control-allow-origin"]).toBeUndefined();
 
   await app.close();
-});
+}, COLD_START_TIMEOUT_MS);
 
 test("the REST proxy passes allowed reads and refuses everything else", async () => {
   const calls: string[] = [];
