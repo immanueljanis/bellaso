@@ -1,6 +1,6 @@
 import Link from "next/link";
-import type { CSSProperties } from "react";
 import { FigJourney } from "./fig-journey";
+import { FigLattice } from "./fig-lattice";
 import { HeroCta } from "./hero-cta";
 import { SiteHeader } from "./site-header";
 import ui from "./ui.module.css";
@@ -12,37 +12,12 @@ const DEMO_RECIPIENT = "qor130jxjehyvf2ndr6lyutl9e09plv7k0epyhnmyz";
 /** The KEM key fingerprint of the demo recipient, checked against the chain on 23 Nov 2026. */
 const DEMO_FINGERPRINT = "b28fe7b8c9575ffb8d137581d33c2b2b";
 
-interface Point {
-  left: string;
-  top: string;
-  delay: string;
-  enter: string;
-  label?: string;
-}
-
-/** The points of Fig. 1: a skewed grid of announcements, three of them yours. The scan line reaches each one by its x position. */
-function announcementField(): Point[] {
-  const width = 600;
-  const height = 520;
-  const scanSeconds = 4.2;
-  const mine: Record<string, string> = { "5,3": "150 fUSD", "9,6": "0.25 fETH", "7,9": "80 fUSD" };
-  const points: Point[] = [];
-  for (let row = 0; row < 12; row++) {
-    for (let column = -4; column < 17; column++) {
-      const x = 24 + column * 38 + row * 13;
-      const y = 26 + row * 42;
-      if (x < 14 || x > width - 14 || y > height - 14) continue;
-      points.push({
-        left: `${((x / width) * 100).toFixed(2)}%`,
-        top: `${((y / height) * 100).toFixed(2)}%`,
-        delay: `${((x / width) * scanSeconds).toFixed(2)}s`,
-        enter: `${(0.5 + row * 0.05 + (x / width) * 0.4).toFixed(2)}s`,
-        label: mine[`${column},${row}`],
-      });
-    }
-  }
-  return points;
-}
+/** The recipient flow in three plain steps, directly below the hero. */
+const QUICK = [
+  ["Create your link", "One minute, in this browser. You need no wallet extension."],
+  ["Share it", "Send it to a client, or put it in your invoice."],
+  ["Get paid", "Each payment lands in a new address. Your inbox finds it."],
+] as const;
 
 const FACTS = [
   ["Recipient hidden with", "ML-KEM-1024 · FIPS 203"],
@@ -51,15 +26,14 @@ const FACTS = [
   ["Runs on", "QoreChain testnet"],
 ] as const;
 
-/** The two payment methods (SPEC section 2.2): the hero names them, the methods section explains them. */
+/** The two payment methods (SPEC section 2.2), as the methods section explains them. */
 const METHODS = [
   {
     kicker: "Method 1",
     title: "Payment link",
-    short: "One link for every payer. They pay with QoreX.",
     facts: [
       ["The payer uses", "QoreX, with one signature"],
-      ["On chain", "A transfer to a new address, and 1,568 bytes of ML‑KEM‑1024 ciphertext"],
+      ["On chain", "A transfer to a new address, and an announcement of 1,570 bytes that only you can open"],
       ["The new address comes from", "A secret that the payer seals to your ML‑KEM‑1024 key. Only your key opens it."],
       ["Best for", "Many payers, a public page"],
     ],
@@ -69,7 +43,6 @@ const METHODS = [
   {
     kicker: "Method 2",
     title: "Stealth address",
-    short: "One address for each client. They pay from any wallet.",
     facts: [
       ["The payer uses", "Any wallet, with a normal transfer"],
       ["On chain", "A normal transfer, and nothing more"],
@@ -103,29 +76,28 @@ const PUBLIC = [
 
 const COMPARED = {
   products: [
+    ["Bellaso", "QoreChain testnet"],
     ["Silent Payments", "Bitcoin, BIP-352"],
     ["Umbra", "Ethereum, 270,000+ payments"],
     ["Fluidkey", "Payment links, $840M sent"],
-    ["Bellaso", "QoreChain testnet"],
   ],
   rows: [
     ["Hides who gets paid", "Yes", "Yes", "Yes", "Yes"],
     ["Who pays and how much", "Public", "Public", "Public", "Public"],
-    ["Who sees your payment list", "Only you", "Only you", "You and Fluidkey", "Only you"],
-    ["Old payments private after Q-Day", "No", 'No, rated "Exposed"', "If you trust the service", "Yes, ML-KEM-1024"],
-    ["Funds safe after Q-Day", "No", "No", "No", "Yes, ML-DSA-87"],
+    ["Who sees your payment list", "Only you", "Only you", "Only you", "You and Fluidkey"],
+    ["Old payments private after Q-Day", "Yes, ML-KEM-1024", "No", 'No, rated "Exposed"', "If you trust the service"],
+    ["Funds safe after Q-Day", "Yes, ML-DSA-87", "No", "No", "No"],
   ],
 } as const;
 
-/** The landing page (design canvas, Main board): the two methods first, one live figure, the honest limits and the comparison. */
+/** The landing page (design canvas, Main board): the benefit first, one live figure, the two methods, the honest limits and the comparison. */
 export default function Home() {
-  const points = announcementField();
   return (
     <>
       <SiteHeader
         action={
           <nav aria-label="Sections" className={styles.sections}>
-            <a href="#methods">Two methods</a>
+            <a href="#methods">Ways to get paid</a>
             <a href="#how">How it works</a>
             <a href="#public">What stays public</a>
             <a href="#compared">Compared</a>
@@ -141,78 +113,61 @@ export default function Home() {
           <div>
             <h1 className={`${styles.heroTitle} ${styles.up}`}>Quantum-safe stealth payments.</h1>
             <p className={`${styles.heroLede} ${styles.up} ${styles.u1}`}>
-              No chain observer can link a payment to you, today or after Q-Day. Get paid in two ways:
+              Get paid in crypto with one link. Each payment lands in a new address, so nobody who reads the chain can link your payments to you.
+              Quantum-safe means that this stays true after Q-Day, the day a quantum computer breaks the keys of the wallets in use now.
             </p>
-            <ul className={`${styles.heroMethods} ${styles.up} ${styles.u1}`}>
-              {METHODS.map((method) => (
-                <li key={method.title}>
-                  <span className={styles.heroMethodTitle}>{method.title}</span>
-                  <span className={styles.heroMethodText}>{method.short}</span>
-                </li>
-              ))}
-            </ul>
             <div className={`${styles.actions} ${styles.up} ${styles.u2}`}>
               <HeroCta />
               <Link href={`/pay/${DEMO_RECIPIENT}#k=${DEMO_FINGERPRINT}`} className={styles.textLink}>
-                See a payment link <span className={styles.arrow}>→</span>
+                See what a payer sees <span className={styles.arrow}>→</span>
               </Link>
             </div>
           </div>
           <figure className={`${styles.fig1} ${styles.up} ${styles.u3}`}>
-            <div
-              className={styles.field}
-              role="img"
-              aria-label="Figure 1. A field of announcements. A scan line passes over all of them. Three light up: they belong to you."
-            >
+            <div className={styles.field}>
               <span className={`${ui.corner} ${ui.tl}`} aria-hidden="true" />
               <span className={`${ui.corner} ${ui.tr}`} aria-hidden="true" />
               <span className={`${ui.corner} ${ui.bl}`} aria-hidden="true" />
               <span className={`${ui.corner} ${ui.br}`} aria-hidden="true" />
-              {points.map((point) =>
-                point.label ? (
-                  <span key={point.left + point.top} className={styles.mine} style={{ left: point.left, top: point.top }} aria-hidden="true">
-                    <span className={styles.mineDot} />
-                    <span className={styles.found} style={{ animationDelay: point.delay }} />
-                    <span className={styles.foundLabel} style={{ animationDelay: point.delay }}>
-                      {point.label}
-                    </span>
-                  </span>
-                ) : (
-                  <span
-                    key={point.left + point.top}
-                    className={styles.point}
-                    style={{ left: point.left, top: point.top, animationDelay: point.enter } as CSSProperties}
-                    aria-hidden="true"
-                  >
-                    <span className={styles.ping} style={{ animationDelay: point.delay }} />
-                  </span>
-                ),
-              )}
-              <div className={styles.scan} aria-hidden="true" />
+              <FigLattice />
             </div>
             <figcaption className={ui.caption}>
               <span className={ui.captionLabel}>Fig. 1</span>
-              <span>Each point is an announcement on chain. Your key opens three of them. Nobody else can tell which three.</span>
+              <span>Each point is an announcement on chain. Your key opens three of them. A quantum computer cannot tell which three.</span>
             </figcaption>
           </figure>
         </section>
 
-        <dl className={`${styles.facts} ${styles.up} ${styles.u4}`}>
-          {FACTS.map(([term, value]) => (
-            <div key={term}>
-              <dt>{term}</dt>
-              <dd>{value}</dd>
-            </div>
+        <ol className={`${styles.facts} ${styles.quick} ${styles.up} ${styles.u4}`}>
+          {QUICK.map(([title, body], index) => (
+            <li key={title}>
+              <span className={styles.quickTitle}>
+                {index + 1}. {title}
+              </span>
+              <span>{body}</span>
+            </li>
           ))}
-        </dl>
+        </ol>
+
+        <section className={`${styles.section} ${styles.reveal}`} aria-labelledby="problem">
+          <p id="problem" className={styles.kicker}>
+            The problem
+          </p>
+          <blockquote className={styles.quote}>“The chain itself is the archive.”</blockquote>
+          <div className={styles.twoText}>
+            <p>One wallet address shows each client your balance and what your other clients paid you. A stealth payment goes to a new address each time, so the payments are not linked.</p>
+            <p>Stealth payments today use elliptic-curve math, and the chain keeps every record. A quantum computer can break that math later and match every old payment to its recipient. A leak of privacy cannot be reversed by a fork.</p>
+          </div>
+          <p className={styles.source}>ethresear.ch, March 2026 · L2BEAT rates ECDH stealth payments “Exposed” to a future adversary</p>
+        </section>
 
         <section id="methods" className={`${styles.section} ${styles.reveal}`} aria-labelledby="methods-title">
           <h2 id="methods-title" className={styles.h2}>
-            Two methods, both quantum-safe
+            Two ways to get paid
           </h2>
           <p className={styles.lede}>
-            Each payment lands in a new one-time account. The methods differ in how the payer pays and where the new address comes from. Every
-            spend needs two signatures: secp256k1 and {"ML‑DSA‑87"}.
+            Each payment lands in a new one-time account that only you can find. Start with the payment link. Use a stealth address for a client
+            who pays from another wallet or from an exchange.
           </p>
           <div className={styles.methods}>
             {METHODS.map((method) => (
@@ -235,18 +190,6 @@ export default function Home() {
           </div>
         </section>
 
-        <section className={`${styles.section} ${styles.reveal}`} aria-labelledby="problem">
-          <p id="problem" className={styles.kicker}>
-            The problem
-          </p>
-          <blockquote className={styles.quote}>“The chain itself is the archive.”</blockquote>
-          <div className={styles.twoText}>
-            <p>Stealth payments today hide the recipient with elliptic-curve math. Each payment leaves a record on chain, and the chain keeps every record.</p>
-            <p>A quantum computer can break that math later and match every old payment to its recipient. A leak of privacy cannot be reversed by a fork.</p>
-          </div>
-          <p className={styles.source}>ethresear.ch, March 2026 · L2BEAT rates ECDH stealth payments “Exposed” to a future adversary</p>
-        </section>
-
         <section id="how" className={`${styles.section} ${styles.reveal}`} aria-labelledby="how-title">
           <h2 id="how-title" className={styles.h2}>
             How a link payment travels
@@ -267,10 +210,18 @@ export default function Home() {
               <FigJourney />
               <figcaption className={ui.caption}>
                 <span className={ui.captionLabel}>Fig. 2</span>
-                <span>What a chain observer sees: a transfer to a new address and 1,570 bytes of ciphertext. Nothing points to Rina.</span>
+                <span>What a chain observer sees: a transfer to a new address and an announcement of 1,570 bytes. Nothing points to Rina.</span>
               </figcaption>
             </figure>
           </div>
+          <dl className={`${styles.facts}`}>
+            {FACTS.map(([term, value]) => (
+              <div key={term}>
+                <dt>{term}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
         </section>
 
         <section id="public" className={`${styles.section} ${styles.reveal}`} aria-labelledby="public-title">
@@ -327,7 +278,7 @@ export default function Home() {
                   <tr key={question}>
                     <th scope="row">{question}</th>
                     {answers.map((answer, index) => (
-                      <td key={`${question}-${index}`} className={index === 3 ? styles.us : undefined}>
+                      <td key={`${question}-${index}`} className={index === 0 ? styles.us : undefined}>
                         {answer}
                       </td>
                     ))}
